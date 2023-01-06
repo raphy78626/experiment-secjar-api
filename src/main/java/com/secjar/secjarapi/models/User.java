@@ -3,11 +3,11 @@ package com.secjar.secjarapi.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
-@Setter
 @Entity
 @Table(name = "users")
 public class User {
@@ -18,11 +18,17 @@ public class User {
 
     private String username;
     private String password;
-    private String authorities;
+    @ManyToMany
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<UserRole> roles;
 
-    public User(String username, String password, String roles) {
+    public User(String username, String password, List<UserRole> roles) {
         this.username = username;
         this.password = password;
-        this.authorities = roles;
+        this.roles = roles;
     }
 }
