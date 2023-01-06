@@ -15,9 +15,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private String uuid;
 
     private String username;
     private String password;
+    private String email;
     @ManyToMany
     @JoinTable(
             name = "users_roles",
@@ -26,9 +28,11 @@ public class User {
     )
     private List<UserRole> roles;
 
-    public User(String username, String password, List<UserRole> roles) {
+    public User(String uuid, String username, String password, String email, List<UserRole> roles) {
+        this.uuid = uuid;
         this.username = username;
         this.password = password;
+        this.email = email;
         this.roles = roles;
     }
 }
