@@ -12,11 +12,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
 @Service
-public class TokenService {
+public class JwtTokenService {
 
     private final JwtEncoder jwtEncoder;
 
-    public TokenService(JwtEncoder encoder) {
+    public JwtTokenService(JwtEncoder encoder) {
         this.jwtEncoder = encoder;
     }
 

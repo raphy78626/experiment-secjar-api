@@ -1,7 +1,7 @@
 package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.LoginRequestDTO;
-import com.secjar.secjarapi.services.TokenService;
+import com.secjar.secjarapi.services.JwtTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,17 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthController {
 
-    private final TokenService tokenService;
+    private final JwtTokenService jwtTokenService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthController(TokenService tokenService, AuthenticationManager authenticationManager) {
-        this.tokenService = tokenService;
+    public AuthController(JwtTokenService jwtTokenService, AuthenticationManager authenticationManager) {
+        this.jwtTokenService = jwtTokenService;
         this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/login")
     public String token(@RequestBody LoginRequestDTO userLogin) throws AuthenticationException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLogin.username(), userLogin.password()));
-        return tokenService.generateToken(authentication);
+        return jwtTokenService.generateToken(authentication);
     }
 }
