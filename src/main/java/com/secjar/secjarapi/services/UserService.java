@@ -30,18 +30,21 @@ public class UserService {
         return userRepository.findByEmail(username).isPresent();
     }
 
-    public String addUserToDatabase(RegistrationRequestDTO registrationRequestDTO) {
-
-        User user = new User(
+    public User createUserFromRegistrationRequest(RegistrationRequestDTO registrationRequestDTO) {
+        return new User(
                 UUID.randomUUID().toString(),
                 registrationRequestDTO.username(),
                 passwordEncoder.encode(registrationRequestDTO.password()),
                 registrationRequestDTO.email(),
                 List.of(roleService.getRole(UserRolesEnum.ROLE_USER))
         );
+    }
 
+    public void saveUser(User user) {
         userRepository.save(user);
+    }
 
-        return user.getUuid();
+    public int enableUser(String email) {
+        return userRepository.enableAppUser(email);
     }
 }

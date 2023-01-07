@@ -2,9 +2,7 @@ package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.RegistrationRequestDTO;
 import com.secjar.secjarapi.services.RegistrationService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class RegistrationController {
@@ -18,5 +16,11 @@ public class RegistrationController {
     @PostMapping("/register")
     public String register(@RequestBody RegistrationRequestDTO request) {
         return registrationService.register(request);
+    }
+
+    @PostMapping("/register/confirm")
+    public String confirm(@RequestParam("token") String token) {
+        registrationService.confirmRegistrationToken(token);
+        return "confirmed";
     }
 }
