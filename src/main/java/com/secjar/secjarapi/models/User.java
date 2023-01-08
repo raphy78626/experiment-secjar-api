@@ -20,7 +20,7 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private Boolean enabled = false;
+    private Boolean verified = false;
     @ManyToMany
     @JoinTable(
             name = "users_roles",
