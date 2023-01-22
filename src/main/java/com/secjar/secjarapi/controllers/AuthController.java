@@ -1,7 +1,10 @@
 package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.LoginRequestDTO;
+import com.secjar.secjarapi.dtos.responses.LoginResponseDTO;
 import com.secjar.secjarapi.services.JwtTokenService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,8 +25,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String token(@RequestBody LoginRequestDTO userLogin) throws AuthenticationException {
+    public ResponseEntity<LoginResponseDTO> token(@RequestBody LoginRequestDTO userLogin, HttpServletResponse response) throws AuthenticationException {
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLogin.username(), userLogin.password()));
-        return jwtTokenService.generateToken(authentication);
+
+        return ResponseEntity.ok(new LoginResponseDTO(jwtTokenService.generateToken(authentication)));
     }
 }
