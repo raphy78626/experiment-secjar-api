@@ -1,6 +1,6 @@
 package com.secjar.secjarapi.services;
 
-import com.secjar.secjarapi.dtos.RegistrationRequestDTO;
+import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.models.ConfirmationToken;
 import com.secjar.secjarapi.models.User;
 import org.apache.commons.validator.routines.EmailValidator;

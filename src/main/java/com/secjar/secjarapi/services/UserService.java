@@ -1,6 +1,6 @@
 package com.secjar.secjarapi.services;
 
-import com.secjar.secjarapi.dtos.RegistrationRequestDTO;
+import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.UserRepository;

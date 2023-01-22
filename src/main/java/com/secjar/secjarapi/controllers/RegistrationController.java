@@ -1,6 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
-import com.secjar.secjarapi.dtos.RegistrationRequestDTO;
+import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.services.RegistrationService;
 import org.springframework.web.bind.annotation.*;
 

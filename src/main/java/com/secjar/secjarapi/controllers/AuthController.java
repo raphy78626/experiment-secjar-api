@@ -1,6 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
-import com.secjar.secjarapi.dtos.LoginRequestDTO;
+import com.secjar.secjarapi.dtos.requests.LoginRequestDTO;
 import com.secjar.secjarapi.dtos.responses.LoginResponseDTO;
 import com.secjar.secjarapi.services.JwtTokenService;
 import jakarta.servlet.http.HttpServletResponse;
