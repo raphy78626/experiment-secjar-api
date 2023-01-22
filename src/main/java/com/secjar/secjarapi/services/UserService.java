@@ -4,6 +4,7 @@ import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,10 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
+    }
+
+    public User getUserByUuid(String uuid) {
+        return userRepository.findByUuid(uuid).orElseThrow(() -> new UsernameNotFoundException(String.format("User with uuid: %s does not exist", uuid)));
     }
 
     public boolean checkIfUserWithEmailExist(String email) {

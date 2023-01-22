@@ -8,6 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @EnableConfigurationProperties(RsaKeyProperties.class)
 @PropertySource("classpath:emailSender.properties")
+@PropertySource("classpath:files.properties")
 @SpringBootApplication
 public class SecjarApiApplication {
 

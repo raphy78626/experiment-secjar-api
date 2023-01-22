@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -28,6 +29,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<UserRole> roles;
+
+    @OneToMany(mappedBy = "user")
+    private List<FileInfo> files = new ArrayList<>();
 
     public User(String uuid, String username, String password, String email, List<UserRole> roles) {
         this.uuid = uuid;
