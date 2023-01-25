@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 @Service
 public class HsmService {
@@ -42,6 +43,29 @@ public class HsmService {
             if (serverCXI != null) {
                 serverCXI.close();
             }
+        }
+    }
+
+    public byte[] insertKeyToStore(CryptoServerCXI.Key keyToStore) {
+
+        byte[] keyIndex;
+        CryptoServerCXI.KeyStore keyStore;
+
+        try {
+            keyStore = new CryptoServerCXI.KeyStore("./cxi.ks", 16);
+            keyIndex = keyToStore.getUName();
+            return keyStore.insertKey(CryptoServerCXI.FLAG_OVERWRITE, keyIndex, keyToStore);
+        } catch (NoSuchAlgorithmException | CryptoServerException | IOException e) {
+            throw new RuntimeException("Problem while storing the key in hsm", e);
+        }
+    }
+
+    public CryptoServerCXI.Key getKeyFromStore(byte[] keyIndex) {
+        try {
+            CryptoServerCXI.KeyStore keyStore = new CryptoServerCXI.KeyStore("./cxi.ks", 16);
+            return keyStore.getKey(keyIndex);
+        } catch (IOException | CryptoServerException e) {
+            throw new RuntimeException(e);
         }
     }
 }
