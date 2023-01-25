@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
+import com.secjar.secjarapi.dtos.requests.FileDeleteRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.models.FileInfo;
@@ -11,10 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -49,4 +47,23 @@ public class FileController {
 
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }
+
+    @PostMapping("/delete")
+    public ResponseEntity<MessageResponseDTO> delete(@RequestBody FileDeleteRequestDTO fileDeleteRequestDTO, @AuthenticationPrincipal Jwt principal) {
+
+        String userUuid = principal.getClaims().get("userUuid").toString();
+        User user = userService.getUserByUuid(userUuid);
+
+        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileDeleteRequestDTO.fileUuid());
+
+        if(!fileInfo.getUser().equals(user)){
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        fileInfoService.deleteFileInfoByUuid(fileDeleteRequestDTO.fileUuid());
+        fileService.deleteFile(fileDeleteRequestDTO.fileUuid());
+
+        return ResponseEntity.ok(new MessageResponseDTO("File deleted"));
+    }
+
 }

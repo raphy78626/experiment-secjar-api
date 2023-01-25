@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.services;
 
 import com.secjar.secjarapi.models.FileInfo;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +47,17 @@ public class FileService {
         } catch (IOException e) {
             //TODO: Handle exception
             throw new RuntimeException("Error while saving the file", e);
+        }
+    }
+
+    public void deleteFile(String fileUuid) {
+
+        Path attachmentDirectoryPath = Path.of(fileSavePath, fileUuid);
+
+        try {
+            FileUtils.deleteDirectory(attachmentDirectoryPath.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException("Error while deleting attachment", e);
         }
     }
 }

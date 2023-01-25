@@ -16,4 +16,13 @@ public class FileInfoService {
     public void saveFileInfo(FileInfo file) {
         fileInfoRepository.save(file);
     }
+
+    public void deleteFileInfoByUuid(String fileInfoUuid){
+        fileInfoRepository.deleteByUuid(fileInfoUuid);
+    }
+
+    public FileInfo findFileIntoByUuid(String fileInfoUuid) {
+        //TODO: create custom exception
+        return fileInfoRepository.findByUuid(fileInfoUuid).orElseThrow(() -> new RuntimeException(String.format("File with uuid: %s does not exist", fileInfoUuid)));
+    }
 }
