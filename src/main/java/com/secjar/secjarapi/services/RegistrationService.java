@@ -67,5 +67,6 @@ public class RegistrationService {
 
         confirmationTokenService.setConfirmedAt(token);
         userService.enableUser(confirmationToken.getUser().getEmail());
+        userService.addCryptoKeyToUser(confirmationToken.getUser().getId());
     }
 }
