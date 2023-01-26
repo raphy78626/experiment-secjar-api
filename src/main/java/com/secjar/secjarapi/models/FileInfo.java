@@ -3,6 +3,9 @@ package com.secjar.secjarapi.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.sql.Timestamp;
 
 @NoArgsConstructor
 @Getter
@@ -16,6 +19,8 @@ public class FileInfo {
     private String uuid;
 
     private String fileName;
+    @Setter
+    private Timestamp deleteDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
