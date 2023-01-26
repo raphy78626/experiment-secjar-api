@@ -79,6 +79,24 @@ public class HsmService {
         return encryptedData;
     }
 
+    public byte[] decryptData(byte[] encryptedData, CryptoServerCXI.Key keyForDecryption) {
+        CryptoServerCXI serverCXI = initializeServerCXI();
+        byte[] decryptedData;
+
+        try {
+            int mechanisms = CryptoServerCXI.MECH_MODE_DECRYPT | CryptoServerCXI.MECH_CHAIN_CBC | CryptoServerCXI.MECH_PAD_PKCS5;
+            decryptedData = serverCXI.crypt(keyForDecryption, mechanisms, null, encryptedData, null);
+        } catch (CryptoServerException | IOException e) {
+            throw new RuntimeException("Error while decrypting data", e);
+        } finally {
+            if (serverCXI != null) {
+                serverCXI.close();
+            }
+        }
+
+        return decryptedData;
+    }
+
     private CryptoServerCXI initializeServerCXI() {
 
         String device = System.getenv("CRYPTOSERVER");
