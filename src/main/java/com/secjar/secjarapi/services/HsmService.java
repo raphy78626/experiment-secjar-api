@@ -20,19 +20,9 @@ public class HsmService {
 
     public CryptoServerCXI.Key generateKey(String keyName) {
 
-        String device = System.getenv("CRYPTOSERVER");
-        if (device == null) {
-            device = "3001@127.0.0.1";
-        }
-
-        CryptoServerCXI serverCXI = null;
+        CryptoServerCXI serverCXI = initializeServerCXI();
 
         try {
-            serverCXI = new CryptoServerCXI(device, 3000);
-            serverCXI.setTimeout(60000);
-
-            serverCXI.logonPassword(hsmLogin, hsmPassword);
-
             CryptoServerCXI.KeyAttributes keyAttributes = new CryptoServerCXI.KeyAttributes();
             keyAttributes.setAlgo(CryptoServerCXI.KEY_ALGO_AES);
             keyAttributes.setSize(256);
@@ -69,5 +59,44 @@ public class HsmService {
         } catch (IOException | CryptoServerException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public byte[] encryptData(byte[] data, CryptoServerCXI.Key keyForEncryption) {
+        CryptoServerCXI serverCXI = initializeServerCXI();
+        byte[] encryptedData;
+
+        try {
+            int mechanisms = CryptoServerCXI.MECH_MODE_ENCRYPT | CryptoServerCXI.MECH_CHAIN_CBC | CryptoServerCXI.MECH_PAD_PKCS5;
+            encryptedData = serverCXI.crypt(keyForEncryption, mechanisms, null, data, null);
+        } catch (CryptoServerException | IOException e) {
+            throw new RuntimeException("Error while encrypting data", e);
+        } finally {
+            if (serverCXI != null) {
+                serverCXI.close();
+            }
+        }
+
+        return encryptedData;
+    }
+
+    private CryptoServerCXI initializeServerCXI() {
+
+        String device = System.getenv("CRYPTOSERVER");
+        if (device == null) {
+            device = "3001@127.0.0.1";
+        }
+
+        CryptoServerCXI serverCXI;
+
+        try {
+            serverCXI = new CryptoServerCXI(device, 3000);
+            serverCXI.setTimeout(60000);
+
+            serverCXI.logonPassword(hsmLogin, hsmPassword);
+        } catch (CryptoServerException | IOException e) {
+            throw new RuntimeException("Error while initializing Crypto Server CXI", e);
+        }
+
+        return serverCXI;
     }
 }

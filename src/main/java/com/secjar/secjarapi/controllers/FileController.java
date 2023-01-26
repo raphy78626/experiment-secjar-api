@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
+import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileDeleteRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
@@ -7,6 +8,7 @@ import com.secjar.secjarapi.models.FileInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.FileInfoService;
 import com.secjar.secjarapi.services.FileService;
+import com.secjar.secjarapi.services.HsmService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +28,13 @@ public class FileController {
     private final FileInfoService fileInfoService;
     private final FileService fileService;
     private final UserService userService;
+    private final HsmService hsmService;
 
-    public FileController(FileInfoService fileInfoService, FileService fileService, UserService userService) {
+    public FileController(FileInfoService fileInfoService, FileService fileService, UserService userService, HsmService hsmService) {
         this.fileInfoService = fileInfoService;
         this.fileService = fileService;
         this.userService = userService;
+        this.hsmService = hsmService;
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -44,7 +48,9 @@ public class FileController {
         FileInfo fileInfo = new FileInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), user);
 
         fileInfoService.saveFileInfo(fileInfo);
-        fileService.saveAttachment(fileUploadDTO.file(), fileInfo);
+
+        CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
+        fileService.saveAttachment(fileUploadDTO.file(), fileInfo, userCryptoKey);
 
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }

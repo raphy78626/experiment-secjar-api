@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.models.FileInfo;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,13 @@ public class FileService {
     @Value("${file.saveLocation}")
     private String fileSavePath;
 
-    public void saveAttachment(MultipartFile multipartFile, FileInfo fileInfo) {
+    private final HsmService hsmService;
+
+    public FileService(HsmService hsmService) {
+        this.hsmService = hsmService;
+    }
+
+    public void saveAttachment(MultipartFile multipartFile, FileInfo fileInfo, CryptoServerCXI.Key keyForEncryption) {
         Path filePath = Path.of(fileSavePath, fileInfo.getUuid(), multipartFile.getOriginalFilename());
         File file = new File(filePath.toUri());
 
@@ -29,10 +36,9 @@ public class FileService {
             throw new RuntimeException("Error while creating the file", e);
         }
 
-        byte[] multipartFileBytes;
+        byte[] encryptedFile;
         try {
-            multipartFileBytes = multipartFile.getBytes();
-            //TODO: Encrypt file using HSM
+            encryptedFile = hsmService.encryptData(multipartFile.getBytes(), keyForEncryption);
         } catch (IOException e) {
             //TODO: Handle exception
             throw new RuntimeException("Error while encrypting the file", e);
@@ -41,7 +47,7 @@ public class FileService {
         try {
             OutputStream targetFileOutputStream = new FileOutputStream(file);
 
-            targetFileOutputStream.write(multipartFileBytes);
+            targetFileOutputStream.write(encryptedFile);
 
             targetFileOutputStream.close();
         } catch (IOException e) {
