@@ -15,6 +15,8 @@ public class HsmService {
     private String hsmLogin;
     @Value("${hsm.password}")
     private String hsmPassword;
+    @Value("${hsm.keyStore.location}")
+    private String hsmKeyStoreLocation;
 
     public CryptoServerCXI.Key generateKey(String keyName) {
 
@@ -52,7 +54,7 @@ public class HsmService {
         CryptoServerCXI.KeyStore keyStore;
 
         try {
-            keyStore = new CryptoServerCXI.KeyStore("./cxi.ks", 16);
+            keyStore = new CryptoServerCXI.KeyStore(hsmKeyStoreLocation, 16);
             keyIndex = keyToStore.getUName();
             return keyStore.insertKey(CryptoServerCXI.FLAG_OVERWRITE, keyIndex, keyToStore);
         } catch (NoSuchAlgorithmException | CryptoServerException | IOException e) {
@@ -62,7 +64,7 @@ public class HsmService {
 
     public CryptoServerCXI.Key getKeyFromStore(byte[] keyIndex) {
         try {
-            CryptoServerCXI.KeyStore keyStore = new CryptoServerCXI.KeyStore("./cxi.ks", 16);
+            CryptoServerCXI.KeyStore keyStore = new CryptoServerCXI.KeyStore(hsmKeyStoreLocation, 16);
             return keyStore.getKey(keyIndex);
         } catch (IOException | CryptoServerException e) {
             throw new RuntimeException(e);
