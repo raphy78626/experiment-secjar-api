@@ -25,6 +25,7 @@ public class User {
     private Boolean verified = false;
     @Setter
     private byte[] cryptographicKeyIndex;
+    private long fileDeletionDelay = 2_592_000_000L;
     @ManyToMany
     @JoinTable(
             name = "users_roles",

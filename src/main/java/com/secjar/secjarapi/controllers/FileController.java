@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @RestController
@@ -56,14 +57,19 @@ public class FileController {
 
         FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileDeleteRequestDTO.fileUuid());
 
-        if(!fileInfo.getUser().equals(user)){
+        if (!fileInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        fileInfoService.deleteFileInfoByUuid(fileDeleteRequestDTO.fileUuid());
-        fileService.deleteFile(fileDeleteRequestDTO.fileUuid());
-
-        return ResponseEntity.ok(new MessageResponseDTO("File deleted"));
+        if (fileDeleteRequestDTO.instantDelete()) {
+            fileInfoService.deleteFileInfoByUuid(fileDeleteRequestDTO.fileUuid());
+            fileService.deleteFile(fileDeleteRequestDTO.fileUuid());
+            return ResponseEntity.ok(new MessageResponseDTO("File deleted"));
+        } else {
+            fileInfo.setDeleteDate(new Timestamp(System.currentTimeMillis() + user.getFileDeletionDelay()));
+            fileInfoService.saveFileInfo(fileInfo);
+            return ResponseEntity.ok(new MessageResponseDTO("File moved to trash"));
+        }
     }
 
 }
