@@ -113,4 +113,21 @@ public class FileController {
             return ResponseEntity.ok(new MessageResponseDTO("File moved to trash"));
         }
     }
+
+    @PatchMapping("/restore/{fileUuid}")
+    public ResponseEntity<MessageResponseDTO> restoreFileFromTrash(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
+
+        String userUuid = principal.getClaims().get("userUuid").toString();
+        User user = userService.getUserByUuid(userUuid);
+
+        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
+
+        if (!fileInfo.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        fileInfoService.removeDeleteDate(fileUuid);
+
+        return ResponseEntity.ok(new MessageResponseDTO("File restored"));
+    }
 }

@@ -41,4 +41,12 @@ public class FileInfoService {
 
         return filesToDelete.stream().flatMap(Optional::stream).collect(Collectors.toList());
     }
+
+    public void removeDeleteDate(String fileInfoUuid) {
+        FileInfo fileInfo = fileInfoRepository.findByUuid(fileInfoUuid).orElseThrow(() -> new RuntimeException(String.format("FileInfo with uuid: %s does not exist", fileInfoUuid)));
+
+        fileInfo.setDeleteDate(null);
+
+        fileInfoRepository.save(fileInfo);
+    }
 }
