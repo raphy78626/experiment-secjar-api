@@ -1,7 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
 import CryptoServerCXI.CryptoServerCXI;
-import com.secjar.secjarapi.dtos.requests.FileDeleteRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.AllFilesInfoResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/file")
+@RequestMapping("/files")
 public class FileController {
 
     private final FileInfoService fileInfoService;
@@ -74,8 +73,8 @@ public class FileController {
                 .body(byteArrayResource);
     }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageResponseDTO> uploadFile(@AuthenticationPrincipal Jwt principal, @ModelAttribute FileUploadRequestDTO fileUploadDTO) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageResponseDTO> uploadFile(@ModelAttribute FileUploadRequestDTO fileUploadDTO, @AuthenticationPrincipal Jwt principal) {
 
         String userUuid = principal.getClaims().get("userUuid").toString();
         User user = userService.getUserByUuid(userUuid);
@@ -92,21 +91,21 @@ public class FileController {
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }
 
-    @PostMapping("/delete")
-    public ResponseEntity<MessageResponseDTO> deleteFile(@RequestBody FileDeleteRequestDTO fileDeleteRequestDTO, @AuthenticationPrincipal Jwt principal) {
+    @DeleteMapping("/{fileUuid}")
+    public ResponseEntity<MessageResponseDTO> deleteFile(@PathVariable String fileUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 
         String userUuid = principal.getClaims().get("userUuid").toString();
         User user = userService.getUserByUuid(userUuid);
 
-        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileDeleteRequestDTO.fileUuid());
+        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
 
         if (!fileInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        if (fileDeleteRequestDTO.instantDelete()) {
-            fileInfoService.deleteFileInfoByUuid(fileDeleteRequestDTO.fileUuid());
-            fileService.deleteFile(fileDeleteRequestDTO.fileUuid());
+        if (instantDelete) {
+            fileInfoService.deleteFileInfoByUuid(fileUuid);
+            fileService.deleteFile(fileUuid);
             return ResponseEntity.ok(new MessageResponseDTO("File deleted"));
         } else {
             fileInfo.setDeleteDate(new Timestamp(System.currentTimeMillis() + user.getFileDeletionDelay()));
@@ -114,5 +113,4 @@ public class FileController {
             return ResponseEntity.ok(new MessageResponseDTO("File moved to trash"));
         }
     }
-
 }
