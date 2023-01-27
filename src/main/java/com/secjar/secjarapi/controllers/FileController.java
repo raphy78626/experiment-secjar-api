@@ -93,7 +93,7 @@ public class FileController {
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<MessageResponseDTO> delete(@RequestBody FileDeleteRequestDTO fileDeleteRequestDTO, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> deleteFile(@RequestBody FileDeleteRequestDTO fileDeleteRequestDTO, @AuthenticationPrincipal Jwt principal) {
 
         String userUuid = principal.getClaims().get("userUuid").toString();
         User user = userService.getUserByUuid(userUuid);
