@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
@@ -54,6 +55,21 @@ public class FileService {
             //TODO: Handle exception
             throw new RuntimeException("Error while saving the file", e);
         }
+    }
+
+    public byte[] getFileBytes(FileInfo fileInfo, CryptoServerCXI.Key keyForDecryption) {
+
+        Path FileDirectoryPath = Path.of(fileSavePath, fileInfo.getUuid(), fileInfo.getFileName());
+
+        File encryptedFile = new File(FileDirectoryPath.toUri());
+        byte[] fileBytes;
+        try {
+            fileBytes = Files.readAllBytes(encryptedFile.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Error while getting the file", e);
+        }
+
+        return hsmService.decryptData(fileBytes, keyForDecryption);
     }
 
     public void deleteFile(String fileUuid) {

@@ -11,6 +11,7 @@ import com.secjar.secjarapi.services.FileInfoService;
 import com.secjar.secjarapi.services.FileService;
 import com.secjar.secjarapi.services.HsmService;
 import com.secjar.secjarapi.services.UserService;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -47,6 +48,30 @@ public class FileController {
         List<FileInfo> fileInfoList = user.getFiles();
 
         return ResponseEntity.ok(new AllFilesInfoResponseDTO(fileInfoList));
+    }
+
+    @GetMapping("/{fileUuid}")
+    public ResponseEntity<?> downloadFile(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
+        String userUuid = principal.getClaims().get("userUuid").toString();
+        User user = userService.getUserByUuid(userUuid);
+
+        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
+
+        if (!fileInfo.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        CryptoServerCXI.Key keyForDecryption = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
+
+        byte[] fileBytes = fileService.getFileBytes(fileInfo, keyForDecryption);
+
+        ByteArrayResource byteArrayResource = new ByteArrayResource(fileBytes);
+
+        return ResponseEntity
+                .ok()
+                .contentLength(byteArrayResource.contentLength())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(byteArrayResource);
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
