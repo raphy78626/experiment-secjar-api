@@ -41,8 +41,8 @@ public class FileController {
 
     @GetMapping("/info")
     public ResponseEntity<AllFilesInfoResponseDTO> getAllFilesInfo(@AuthenticationPrincipal Jwt principal) {
-        String userUuid = principal.getClaims().get("userUuid").toString();
-        User user = userService.getUserByUuid(userUuid);
+
+        User user = getUserFromPrincipal(principal);
 
         List<FileInfo> fileInfoList = user.getFiles();
 
@@ -51,8 +51,8 @@ public class FileController {
 
     @GetMapping("/{fileUuid}")
     public ResponseEntity<?> downloadFile(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
-        String userUuid = principal.getClaims().get("userUuid").toString();
-        User user = userService.getUserByUuid(userUuid);
+
+        User user = getUserFromPrincipal(principal);
 
         FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
 
@@ -76,8 +76,7 @@ public class FileController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponseDTO> uploadFile(@ModelAttribute FileUploadRequestDTO fileUploadDTO, @AuthenticationPrincipal Jwt principal) {
 
-        String userUuid = principal.getClaims().get("userUuid").toString();
-        User user = userService.getUserByUuid(userUuid);
+        User user = getUserFromPrincipal(principal);
 
         MultipartFile multipartFile = fileUploadDTO.file();
 
@@ -94,8 +93,7 @@ public class FileController {
     @DeleteMapping("/{fileUuid}")
     public ResponseEntity<MessageResponseDTO> deleteFile(@PathVariable String fileUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 
-        String userUuid = principal.getClaims().get("userUuid").toString();
-        User user = userService.getUserByUuid(userUuid);
+        User user = getUserFromPrincipal(principal);
 
         FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
 
@@ -117,8 +115,7 @@ public class FileController {
     @PatchMapping("/restore/{fileUuid}")
     public ResponseEntity<MessageResponseDTO> restoreFileFromTrash(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
 
-        String userUuid = principal.getClaims().get("userUuid").toString();
-        User user = userService.getUserByUuid(userUuid);
+        User user = getUserFromPrincipal(principal);
 
         FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
 
@@ -129,5 +126,10 @@ public class FileController {
         fileInfoService.removeDeleteDate(fileUuid);
 
         return ResponseEntity.ok(new MessageResponseDTO("File restored"));
+    }
+
+    private User getUserFromPrincipal(Jwt principal) {
+        String userUuid = principal.getClaims().get("userUuid").toString();
+        return userService.getUserByUuid(userUuid);
     }
 }
