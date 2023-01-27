@@ -3,6 +3,7 @@ package com.secjar.secjarapi.controllers;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileDeleteRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
+import com.secjar.secjarapi.dtos.responses.AllFilesInfoResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.models.FileInfo;
 import com.secjar.secjarapi.models.User;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +37,16 @@ public class FileController {
         this.fileService = fileService;
         this.userService = userService;
         this.hsmService = hsmService;
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<AllFilesInfoResponseDTO> getAllFilesInfo(@AuthenticationPrincipal Jwt principal) {
+        String userUuid = principal.getClaims().get("userUuid").toString();
+        User user = userService.getUserByUuid(userUuid);
+
+        List<FileInfo> fileInfoList = user.getFiles();
+
+        return ResponseEntity.ok(new AllFilesInfoResponseDTO(fileInfoList));
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
