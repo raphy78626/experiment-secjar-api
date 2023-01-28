@@ -44,4 +44,8 @@ public class User {
         this.email = email;
         this.roles = roles;
     }
+
+    public List<FileSystemEntryInfo> getFileSystemEntriesStructure() {
+        return fileSystemEntries.stream().filter(fileInfo -> fileInfo.getParent() == null).toList();
+    }
 }

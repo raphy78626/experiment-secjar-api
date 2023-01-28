@@ -44,7 +44,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        List<FileSystemEntryInfo> fileSystemEntryInfoList = user.getFileSystemEntries();
+        List<FileSystemEntryInfo> fileSystemEntryInfoList = user.getFileSystemEntriesStructure();
 
         return ResponseEntity.ok(new FileSystemEntriesStructureResponseDTO(fileSystemEntryInfoList));
     }
