@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -24,6 +26,16 @@ public class FileSystemEntryInfo {
 
     @Setter
     private Timestamp deleteDate;
+
+    @Setter
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private FileSystemEntryInfo parent;
+
+    @Setter
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
+    private List<FileSystemEntryInfo> children = new ArrayList<>();
 
     @JsonIgnore
     @ManyToOne

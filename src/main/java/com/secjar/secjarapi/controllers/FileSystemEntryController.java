@@ -90,6 +90,18 @@ public class FileSystemEntryController {
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileSystemEntryInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }
 
+    @PostMapping
+    public ResponseEntity<MessageResponseDTO> createDirectory(@RequestBody DirectoryCreationDTO directoryCreationDTO, @AuthenticationPrincipal Jwt principal) {
+
+        User user = getUserFromPrincipal(principal);
+
+        FileSystemEntryInfo fileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", user);
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileInfo);
+
+        return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("Directory created"));
+    }
+
     @DeleteMapping("/{fileUuid}")
     public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable String fileUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 
