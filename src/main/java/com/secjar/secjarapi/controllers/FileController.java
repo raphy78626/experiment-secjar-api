@@ -80,7 +80,7 @@ public class FileController {
 
         MultipartFile multipartFile = fileUploadDTO.file();
 
-        FileInfo fileInfo = new FileInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), user);
+        FileInfo fileInfo = new FileInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(),multipartFile.getContentType() , user);
 
         fileInfoService.saveFileInfo(fileInfo);
 

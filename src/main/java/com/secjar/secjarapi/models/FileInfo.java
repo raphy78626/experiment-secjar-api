@@ -20,6 +20,8 @@ public class FileInfo {
     private String uuid;
 
     private String fileName;
+    private String contentType;
+
     @Setter
     private Timestamp deleteDate;
 
@@ -28,9 +30,10 @@ public class FileInfo {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public FileInfo(String uuid, String fileName, User user) {
+    public FileInfo(String uuid, String fileName, String contentType, User user) {
         this.uuid = uuid;
         this.fileName = fileName;
+        this.contentType = contentType;
         this.user = user;
     }
 }
