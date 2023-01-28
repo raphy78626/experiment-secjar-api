@@ -11,15 +11,15 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 @Entity
-@Table(name = "files_info")
-public class FileInfo {
+@Table(name = "file_system_entries_info")
+public class FileSystemEntryInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String uuid;
 
-    private String fileName;
+    private String name;
     private String contentType;
 
     @Setter
@@ -30,9 +30,9 @@ public class FileInfo {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public FileInfo(String uuid, String fileName, String contentType, User user) {
+    public FileSystemEntryInfo(String uuid, String name, String contentType, User user) {
         this.uuid = uuid;
-        this.fileName = fileName;
+        this.name = name;
         this.contentType = contentType;
         this.user = user;
     }

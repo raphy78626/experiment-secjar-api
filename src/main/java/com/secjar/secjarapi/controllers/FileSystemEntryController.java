@@ -2,12 +2,12 @@ package com.secjar.secjarapi.controllers;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
-import com.secjar.secjarapi.dtos.responses.AllFilesInfoResponseDTO;
+import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
-import com.secjar.secjarapi.models.FileInfo;
+import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
-import com.secjar.secjarapi.services.FileInfoService;
 import com.secjar.secjarapi.services.FileService;
+import com.secjar.secjarapi.services.FileSystemEntryInfoService;
 import com.secjar.secjarapi.services.HsmService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.core.io.ByteArrayResource;
@@ -24,45 +24,45 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/files")
-public class FileController {
+@RequestMapping("/fileSystemEntries")
+public class FileSystemEntryController {
 
-    private final FileInfoService fileInfoService;
+    private final FileSystemEntryInfoService fileSystemEntryInfoService;
     private final FileService fileService;
     private final UserService userService;
     private final HsmService hsmService;
 
-    public FileController(FileInfoService fileInfoService, FileService fileService, UserService userService, HsmService hsmService) {
-        this.fileInfoService = fileInfoService;
+    public FileSystemEntryController(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, UserService userService, HsmService hsmService) {
+        this.fileSystemEntryInfoService = fileSystemEntryInfoService;
         this.fileService = fileService;
         this.userService = userService;
         this.hsmService = hsmService;
     }
 
     @GetMapping("/info")
-    public ResponseEntity<AllFilesInfoResponseDTO> getAllFilesInfo(@AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<FileSystemEntriesStructureResponseDTO> getFileSystemEntriesStructure(@AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        List<FileInfo> fileInfoList = user.getFiles();
+        List<FileSystemEntryInfo> fileSystemEntryInfoList = user.getFileSystemEntries();
 
-        return ResponseEntity.ok(new AllFilesInfoResponseDTO(fileInfoList));
+        return ResponseEntity.ok(new FileSystemEntriesStructureResponseDTO(fileSystemEntryInfoList));
     }
 
     @GetMapping("/{fileUuid}")
-    public ResponseEntity<?> downloadFile(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<?> downloadFileSystemEntry(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileIntoByUuid(fileUuid);
 
-        if (!fileInfo.getUser().equals(user)) {
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
         CryptoServerCXI.Key keyForDecryption = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
 
-        byte[] fileBytes = fileService.getFileBytes(fileInfo, keyForDecryption);
+        byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
 
         ByteArrayResource byteArrayResource = new ByteArrayResource(fileBytes);
 
@@ -80,50 +80,50 @@ public class FileController {
 
         MultipartFile multipartFile = fileUploadDTO.file();
 
-        FileInfo fileInfo = new FileInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(),multipartFile.getContentType() , user);
+        FileSystemEntryInfo fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(),multipartFile.getContentType() , user);
 
-        fileInfoService.saveFileInfo(fileInfo);
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
 
         CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
-        fileService.saveAttachment(fileUploadDTO.file(), fileInfo, userCryptoKey);
+        fileService.saveAttachment(fileUploadDTO.file(), fileSystemEntryInfo, userCryptoKey);
 
-        return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("File created"));
+        return ResponseEntity.created(URI.create(String.format("/file/%s", fileSystemEntryInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }
 
     @DeleteMapping("/{fileUuid}")
-    public ResponseEntity<MessageResponseDTO> deleteFile(@PathVariable String fileUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable String fileUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileIntoByUuid(fileUuid);
 
-        if (!fileInfo.getUser().equals(user)) {
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
         if (instantDelete) {
-            fileInfoService.deleteFileInfoByUuid(fileUuid);
+            fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileUuid);
             fileService.deleteFile(fileUuid);
             return ResponseEntity.ok(new MessageResponseDTO("File deleted"));
         } else {
-            fileInfo.setDeleteDate(new Timestamp(System.currentTimeMillis() + user.getFileDeletionDelay()));
-            fileInfoService.saveFileInfo(fileInfo);
+            fileSystemEntryInfo.setDeleteDate(new Timestamp(System.currentTimeMillis() + user.getFileDeletionDelay()));
+            fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
             return ResponseEntity.ok(new MessageResponseDTO("File moved to trash"));
         }
     }
 
     @PatchMapping("/restore/{fileUuid}")
-    public ResponseEntity<MessageResponseDTO> restoreFileFromTrash(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> restoreSystemEntryFromTrash(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        FileInfo fileInfo = fileInfoService.findFileIntoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileIntoByUuid(fileUuid);
 
-        if (!fileInfo.getUser().equals(user)) {
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        fileInfoService.removeDeleteDate(fileUuid);
+        fileSystemEntryInfoService.removeDeleteDate(fileUuid);
 
         return ResponseEntity.ok(new MessageResponseDTO("File restored"));
     }

@@ -1,7 +1,7 @@
 package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
-import com.secjar.secjarapi.models.FileInfo;
+import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,8 +25,8 @@ public class FileService {
         this.hsmService = hsmService;
     }
 
-    public void saveAttachment(MultipartFile multipartFile, FileInfo fileInfo, CryptoServerCXI.Key keyForEncryption) {
-        Path filePath = Path.of(fileSavePath, fileInfo.getUuid(), multipartFile.getOriginalFilename());
+    public void saveAttachment(MultipartFile multipartFile, FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForEncryption) {
+        Path filePath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), multipartFile.getOriginalFilename());
         File file = new File(filePath.toUri());
 
         try {
@@ -57,9 +57,9 @@ public class FileService {
         }
     }
 
-    public byte[] getFileBytes(FileInfo fileInfo, CryptoServerCXI.Key keyForDecryption) {
+    public byte[] getFileBytes(FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForDecryption) {
 
-        Path FileDirectoryPath = Path.of(fileSavePath, fileInfo.getUuid(), fileInfo.getFileName());
+        Path FileDirectoryPath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), fileSystemEntryInfo.getName());
 
         File encryptedFile = new File(FileDirectoryPath.toUri());
         byte[] fileBytes;

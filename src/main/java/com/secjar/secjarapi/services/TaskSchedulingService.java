@@ -1,6 +1,6 @@
 package com.secjar.secjarapi.services;
 
-import com.secjar.secjarapi.models.FileInfo;
+import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -10,23 +10,23 @@ import java.util.List;
 @Service
 public class TaskSchedulingService {
 
-    private final FileInfoService fileInfoService;
+    private final FileSystemEntryInfoService fileSystemEntryInfoService;
     private final FileService fileService;
 
-    public TaskSchedulingService(FileInfoService fileInfoService, FileService fileService) {
-        this.fileInfoService = fileInfoService;
+    public TaskSchedulingService(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService) {
+        this.fileSystemEntryInfoService = fileSystemEntryInfoService;
         this.fileService = fileService;
     }
 
     @Scheduled(fixedDelay = 86400000)
-    public void removeOutDatedOrders() {
+    public void removeFileSystemEntriesFromTrash() {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-        List<FileInfo> filesToDelete = fileInfoService.findAllWithDeleteDateLessThan(timestamp);
+        List<FileSystemEntryInfo> filesToDelete = fileSystemEntryInfoService.findAllWithDeleteDateLessThan(timestamp);
 
-        filesToDelete.forEach(fileInfo -> {
-            fileService.deleteFile(fileInfo.getUuid());
-            fileInfoService.deleteFileInfoByUuid(fileInfo.getUuid());
+        filesToDelete.forEach(file -> {
+            fileService.deleteFile(file.getUuid());
+            fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(file.getUuid());
         });
     }
 }

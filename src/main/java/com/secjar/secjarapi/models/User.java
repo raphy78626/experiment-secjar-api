@@ -35,7 +35,7 @@ public class User {
     private List<UserRole> roles;
 
     @OneToMany(mappedBy = "user")
-    private List<FileInfo> files = new ArrayList<>();
+    private List<FileSystemEntryInfo> fileSystemEntries = new ArrayList<>();
 
     public User(String uuid, String username, String password, String email, List<UserRole> roles) {
         this.uuid = uuid;
