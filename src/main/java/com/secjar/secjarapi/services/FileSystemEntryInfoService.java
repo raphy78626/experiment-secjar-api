@@ -27,7 +27,7 @@ public class FileSystemEntryInfoService {
         fileSystemEntryInfoRepository.deleteByUuid(fileSystemEntryInfoUuid);
     }
 
-    public FileSystemEntryInfo findFileIntoByUuid(String fileSystemEntryInfoUuid) {
+    public FileSystemEntryInfo findFileSystemEntryInfoByUuid(String fileSystemEntryInfoUuid) {
         //TODO: create custom exception
         return fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with uuid: %s does not exist", fileSystemEntryInfoUuid)));
     }
@@ -48,5 +48,13 @@ public class FileSystemEntryInfoService {
         fileSystemEntryInfo.setDeleteDate(null);
 
         fileSystemEntryInfoRepository.save(fileSystemEntryInfo);
+    }
+
+    public void moveFileToDirectory(FileSystemEntryInfo file, FileSystemEntryInfo directory) {
+        file.setParent(directory);
+        directory.getChildren().add(file);
+
+        fileSystemEntryInfoRepository.save(file);
+        fileSystemEntryInfoRepository.save(directory);
     }
 }

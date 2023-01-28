@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.controllers;
 
 import CryptoServerCXI.CryptoServerCXI;
+import com.secjar.secjarapi.dtos.requests.DirectoryCreationDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
@@ -54,7 +55,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileIntoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -80,7 +81,7 @@ public class FileSystemEntryController {
 
         MultipartFile multipartFile = fileUploadDTO.file();
 
-        FileSystemEntryInfo fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(),multipartFile.getContentType() , user);
+        FileSystemEntryInfo fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), user);
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
 
@@ -107,7 +108,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileIntoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -129,7 +130,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileIntoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -138,6 +139,28 @@ public class FileSystemEntryController {
         fileSystemEntryInfoService.removeDeleteDate(fileUuid);
 
         return ResponseEntity.ok(new MessageResponseDTO("File restored"));
+    }
+
+    @PatchMapping("/{fileUuid}/move")
+    public ResponseEntity<MessageResponseDTO> moveFileToDirectory(@PathVariable String fileUuid, @RequestParam String targetDirUuid, @AuthenticationPrincipal Jwt principal) {
+
+        User user = getUserFromPrincipal(principal);
+
+        FileSystemEntryInfo fileInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
+        FileSystemEntryInfo targetDir = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(targetDirUuid);
+
+        if (!fileInfo.getUser().equals(user) || !targetDir.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        if (!targetDir.getContentType().equals("directory")) {
+            return ResponseEntity.status(400).body(new MessageResponseDTO("Target is not a directory"));
+        }
+
+
+        fileSystemEntryInfoService.moveFileToDirectory(fileInfo, targetDir);
+
+        return ResponseEntity.ok(new MessageResponseDTO("File moved"));
     }
 
     private User getUserFromPrincipal(Jwt principal) {
