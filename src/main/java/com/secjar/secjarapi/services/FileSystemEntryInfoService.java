@@ -49,12 +49,4 @@ public class FileSystemEntryInfoService {
 
         fileSystemEntryInfoRepository.save(fileSystemEntryInfo);
     }
-
-    public void moveFileToDirectory(FileSystemEntryInfo file, FileSystemEntryInfo directory) {
-        file.setParent(directory);
-        directory.getChildren().add(file);
-
-        fileSystemEntryInfoRepository.save(file);
-        fileSystemEntryInfoRepository.save(directory);
-    }
 }

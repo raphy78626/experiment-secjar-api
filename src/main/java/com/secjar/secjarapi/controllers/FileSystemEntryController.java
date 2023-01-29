@@ -7,10 +7,7 @@ import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
-import com.secjar.secjarapi.services.FileService;
-import com.secjar.secjarapi.services.FileSystemEntryInfoService;
-import com.secjar.secjarapi.services.HsmService;
-import com.secjar.secjarapi.services.UserService;
+import com.secjar.secjarapi.services.*;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +29,14 @@ public class FileSystemEntryController {
     private final FileService fileService;
     private final UserService userService;
     private final HsmService hsmService;
+    private final FileSystemEntryService fileSystemEntryService;
 
-    public FileSystemEntryController(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, UserService userService, HsmService hsmService) {
+    public FileSystemEntryController(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, UserService userService, HsmService hsmService, FileSystemEntryService fileSystemEntryService) {
         this.fileSystemEntryInfoService = fileSystemEntryInfoService;
         this.fileService = fileService;
         this.userService = userService;
         this.hsmService = hsmService;
+        this.fileSystemEntryService = fileSystemEntryService;
     }
 
     @GetMapping("/info")
@@ -50,12 +49,12 @@ public class FileSystemEntryController {
         return ResponseEntity.ok(new FileSystemEntriesStructureResponseDTO(fileSystemEntryInfoList));
     }
 
-    @GetMapping("/{fileUuid}")
-    public ResponseEntity<?> downloadFileSystemEntry(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
+    @GetMapping("/{uuid}")
+    public ResponseEntity<?> downloadFileSystemEntry(@PathVariable(name = "uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -103,20 +102,19 @@ public class FileSystemEntryController {
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("Directory created"));
     }
 
-    @DeleteMapping("/{fileUuid}")
-    public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable String fileUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable(name = "uuid") String fileSystemEntryUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
         if (instantDelete) {
-            fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileUuid);
-            fileService.deleteFile(fileUuid);
+            fileSystemEntryService.deleteFileSystemEntry(fileSystemEntryUuid);
             return ResponseEntity.ok(new MessageResponseDTO("File deleted"));
         } else {
             fileSystemEntryInfo.setDeleteDate(new Timestamp(System.currentTimeMillis() + user.getFileDeletionDelay()));
@@ -125,8 +123,8 @@ public class FileSystemEntryController {
         }
     }
 
-    @PatchMapping("/restore/{fileUuid}")
-    public ResponseEntity<MessageResponseDTO> restoreSystemEntryFromTrash(@PathVariable String fileUuid, @AuthenticationPrincipal Jwt principal) {
+    @PatchMapping("/restore/{uuid}")
+    public ResponseEntity<MessageResponseDTO> restoreSystemEntryFromTrash(@PathVariable(name = "uuid") String fileUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
@@ -157,8 +155,7 @@ public class FileSystemEntryController {
             return ResponseEntity.status(400).body(new MessageResponseDTO("Target is not a directory"));
         }
 
-
-        fileSystemEntryInfoService.moveFileToDirectory(fileInfo, targetDir);
+        fileSystemEntryService.moveFileToDirectory(fileInfo, targetDir);
 
         return ResponseEntity.ok(new MessageResponseDTO("File moved"));
     }

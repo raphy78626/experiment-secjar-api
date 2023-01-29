@@ -11,11 +11,11 @@ import java.util.List;
 public class TaskSchedulingService {
 
     private final FileSystemEntryInfoService fileSystemEntryInfoService;
-    private final FileService fileService;
+    private final FileSystemEntryService fileSystemEntryService;
 
-    public TaskSchedulingService(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService) {
+    public TaskSchedulingService(FileSystemEntryInfoService fileSystemEntryInfoService, FileSystemEntryService fileSystemEntryService) {
         this.fileSystemEntryInfoService = fileSystemEntryInfoService;
-        this.fileService = fileService;
+        this.fileSystemEntryService = fileSystemEntryService;
     }
 
     @Scheduled(fixedDelay = 86400000)
@@ -24,9 +24,6 @@ public class TaskSchedulingService {
 
         List<FileSystemEntryInfo> filesToDelete = fileSystemEntryInfoService.findAllWithDeleteDateLessThan(timestamp);
 
-        filesToDelete.forEach(file -> {
-            fileService.deleteFile(file.getUuid());
-            fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(file.getUuid());
-        });
+        filesToDelete.forEach(file -> fileSystemEntryService.deleteFileSystemEntry(file.getUuid()));
     }
 }
