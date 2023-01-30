@@ -18,6 +18,10 @@ public class SecurityUser implements UserDetails {
         return user.getUuid();
     }
 
+    public long getDesiredSessionTime() {
+        return user.getDesiredSessionTime();
+    }
+
     @Override
     public String getUsername() {
         return user.getUsername();

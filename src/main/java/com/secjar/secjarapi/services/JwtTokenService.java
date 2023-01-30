@@ -22,6 +22,8 @@ public class JwtTokenService {
     }
 
     public String generateToken(Authentication authentication) {
+        SecurityUser securityUser = ((SecurityUser) authentication.getPrincipal());
+
         Instant now = Instant.now();
 
         String scope = authentication.getAuthorities().stream()
@@ -31,10 +33,10 @@ public class JwtTokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(1, ChronoUnit.HOURS))
+                .expiresAt(now.plus(securityUser.getDesiredSessionTime(), ChronoUnit.MILLIS))
                 .subject(authentication.getName())
                 .claim("scope", scope)
-                .claim("userUuid", ((SecurityUser) authentication.getPrincipal()).getUserUuid())
+                .claim("userUuid", securityUser.getUserUuid())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

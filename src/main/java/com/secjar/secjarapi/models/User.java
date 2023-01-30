@@ -26,6 +26,8 @@ public class User {
     @Setter
     private byte[] cryptographicKeyIndex;
     private long fileDeletionDelay = 2_592_000_000L;
+    @Setter
+    private long desiredSessionTime = 3_600_000L;
     @ManyToMany
     @JoinTable(
             name = "users_roles",
