@@ -103,7 +103,7 @@ public class FileSystemEntryController {
     }
 
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable(name = "uuid") String fileSystemEntryUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable("uuid") String fileSystemEntryUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
@@ -123,24 +123,24 @@ public class FileSystemEntryController {
         }
     }
 
-    @PatchMapping("/restore/{uuid}")
-    public ResponseEntity<MessageResponseDTO> restoreSystemEntryFromTrash(@PathVariable(name = "uuid") String fileUuid, @AuthenticationPrincipal Jwt principal) {
+    @PatchMapping("/{uuid}/restore")
+    public ResponseEntity<MessageResponseDTO> restoreSystemEntryFromTrash(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        fileSystemEntryInfoService.removeDeleteDate(fileUuid);
+        fileSystemEntryInfoService.removeDeleteDate(fileSystemEntryUuid);
 
         return ResponseEntity.ok(new MessageResponseDTO("File restored"));
     }
 
-    @PatchMapping("/{fileUuid}/move")
-    public ResponseEntity<MessageResponseDTO> moveFileToDirectory(@PathVariable String fileUuid, @RequestParam String targetDirUuid, @AuthenticationPrincipal Jwt principal) {
+    @PatchMapping("/{uuid}/move")
+    public ResponseEntity<MessageResponseDTO> moveFileToDirectory(@PathVariable("uuid") String fileUuid, @RequestParam String targetDirUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
 
