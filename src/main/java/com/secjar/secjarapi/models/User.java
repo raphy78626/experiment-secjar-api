@@ -20,6 +20,7 @@ public class User {
     private String uuid;
 
     private String username;
+    @Setter
     private String password;
     private String email;
     private Boolean verified = false;
