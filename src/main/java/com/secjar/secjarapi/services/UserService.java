@@ -34,6 +34,10 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(String.format("User with id: %s does not exist", id)));
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User with email: %s does not exist", email)));
+    }
+
     public boolean checkIfUserWithEmailExist(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
@@ -67,6 +71,24 @@ public class UserService {
         byte[] keyIndex = hsmService.insertKeyToStore(key);
 
         user.setCryptographicKeyIndex(keyIndex);
+
+        saveUser(user);
+    }
+
+    public void changeUserPasswordByUuid(String userUuid, String newPassword) {
+        User user = getUserByUuid(userUuid);
+
+        //TODO: check for password strength
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        saveUser(user);
+    }
+
+    public void changeUserPasswordByEmail(String userEmail, String newPassword) {
+        User user = getUserByEmail(userEmail);
+
+        //TODO: check for password strength
+        user.setPassword(passwordEncoder.encode(newPassword));
 
         saveUser(user);
     }

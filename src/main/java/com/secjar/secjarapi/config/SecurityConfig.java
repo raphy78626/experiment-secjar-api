@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/register/confirm").permitAll()
+                        .requestMatchers("/user/passwordReset").permitAll()
+                        .requestMatchers("/user/passwordReset/confirm").permitAll()
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
