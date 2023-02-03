@@ -160,6 +160,36 @@ public class FileSystemEntryController {
         return ResponseEntity.ok(new MessageResponseDTO("File moved"));
     }
 
+    @PatchMapping("/{uuid}/addToFavourites")
+    public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal){
+        User user = getUserFromPrincipal(principal);
+
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        fileSystemEntryInfoService.addFileSystemEntryToFavourites(fileSystemEntryUuid);
+
+        return ResponseEntity.ok(new MessageResponseDTO("File/Directory is now in favourites"));
+    }
+
+    @PatchMapping("/{uuid}/removeFromFavourites")
+    public ResponseEntity<MessageResponseDTO> removeFileSystemEntryFromFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
+        User user = getUserFromPrincipal(principal);
+
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        fileSystemEntryInfoService.removeFileSystemEntryFromFavourites(fileSystemEntryUuid);
+
+        return ResponseEntity.ok(new MessageResponseDTO("File/Directory is no long in favourites"));
+    }
+
     private User getUserFromPrincipal(Jwt principal) {
         String userUuid = principal.getClaims().get("userUuid").toString();
         return userService.getUserByUuid(userUuid);

@@ -49,4 +49,16 @@ public class FileSystemEntryInfoService {
 
         fileSystemEntryInfoRepository.save(fileSystemEntryInfo);
     }
+
+    public void addFileSystemEntryToFavourites(String fileSystemEntryInfoUuid) {
+        FileSystemEntryInfo fileSystemEntryInfo = findFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
+        fileSystemEntryInfo.setFavourite(true);
+        saveFileSystemEntryInfo(fileSystemEntryInfo);
+    }
+
+    public void removeFileSystemEntryFromFavourites(String fileSystemEntryInfoUuid) {
+        FileSystemEntryInfo fileSystemEntryInfo = findFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
+        fileSystemEntryInfo.setFavourite(false);
+        saveFileSystemEntryInfo(fileSystemEntryInfo);
+    }
 }

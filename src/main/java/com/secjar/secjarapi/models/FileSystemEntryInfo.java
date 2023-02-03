@@ -26,6 +26,8 @@ public class FileSystemEntryInfo {
 
     @Setter
     private Timestamp deleteDate;
+    @Setter
+    private boolean isFavourite;
 
     @Setter
     @JsonIgnore
