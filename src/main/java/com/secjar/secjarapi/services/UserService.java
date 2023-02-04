@@ -2,7 +2,7 @@ package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
-import com.secjar.secjarapi.dtos.requests.UserPatchDTO;
+import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.UserRepository;
@@ -94,15 +94,15 @@ public class UserService {
         saveUser(user);
     }
 
-    public void pathUser(String userUuid, UserPatchDTO userPatchDTO) {
+    public void pathUser(String userUuid, UserPatchRequestDTO userPatchRequestDTO) {
         User user = getUserByUuid(userUuid);
 
-        if (userPatchDTO.fileDeletionDelay() != null) {
-            user.setFileDeletionDelay(userPatchDTO.fileDeletionDelay());
+        if (userPatchRequestDTO.fileDeletionDelay() != null) {
+            user.setFileDeletionDelay(userPatchRequestDTO.fileDeletionDelay());
         }
 
-        if (userPatchDTO.desiredSessionTime() != null) {
-            user.setDesiredSessionTime(userPatchDTO.desiredSessionTime());
+        if (userPatchRequestDTO.desiredSessionTime() != null) {
+            user.setDesiredSessionTime(userPatchRequestDTO.desiredSessionTime());
         }
 
         saveUser(user);

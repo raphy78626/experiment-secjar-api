@@ -3,7 +3,7 @@ package com.secjar.secjarapi.controllers;
 import com.secjar.secjarapi.dtos.requests.ChangePasswordRequestDTO;
 import com.secjar.secjarapi.dtos.requests.PasswordResetConfirmRequestDTO;
 import com.secjar.secjarapi.dtos.requests.PasswordResetRequestDTO;
-import com.secjar.secjarapi.dtos.requests.UserPatchDTO;
+import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.PasswordResetService;
@@ -26,10 +26,10 @@ public class UserController {
     }
 
     @PatchMapping
-    public ResponseEntity<MessageResponseDTO> patchUser(@RequestBody UserPatchDTO userPatchDTO, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> patchUser(@RequestBody UserPatchRequestDTO userPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
-        userService.pathUser(user.getUuid(), userPatchDTO);
+        userService.pathUser(user.getUuid(), userPatchRequestDTO);
 
         return ResponseEntity.status(204).build();
     }
