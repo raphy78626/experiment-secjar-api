@@ -2,6 +2,7 @@ package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
+import com.secjar.secjarapi.dtos.requests.UserPatchDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.UserRepository;
@@ -89,6 +90,20 @@ public class UserService {
 
         //TODO: check for password strength
         user.setPassword(passwordEncoder.encode(newPassword));
+
+        saveUser(user);
+    }
+
+    public void pathUser(String userUuid, UserPatchDTO userPatchDTO) {
+        User user = getUserByUuid(userUuid);
+
+        if (userPatchDTO.fileDeletionDelay() != null) {
+            user.setFileDeletionDelay(userPatchDTO.fileDeletionDelay());
+        }
+
+        if (userPatchDTO.desiredSessionTime() != null) {
+            user.setDesiredSessionTime(userPatchDTO.desiredSessionTime());
+        }
 
         saveUser(user);
     }

@@ -2,6 +2,7 @@ package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.requests.PasswordResetConfirmRequestDTO;
 import com.secjar.secjarapi.dtos.requests.PasswordResetRequestDTO;
+import com.secjar.secjarapi.dtos.requests.UserPatchDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.PasswordResetService;
@@ -23,19 +24,16 @@ public class UserController {
         this.passwordResetService = passwordResetService;
     }
 
-    @PatchMapping("/sessionTime")
-    public ResponseEntity<MessageResponseDTO> changeUserSessionTime(@RequestParam long desiredSessionTime, @AuthenticationPrincipal Jwt principal) {
-
+    @PatchMapping
+    public ResponseEntity<MessageResponseDTO> patchUser(@RequestBody UserPatchDTO userPatchDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
-        user.setDesiredSessionTime(desiredSessionTime);
+        userService.pathUser(user.getUuid(), userPatchDTO);
 
-        userService.saveUser(user);
-
-        return ResponseEntity.ok(new MessageResponseDTO("Desired session time changed"));
+        return ResponseEntity.status(204).build();
     }
 
-    @PatchMapping("/password")
+    @PostMapping("/changePassword")
     public ResponseEntity<MessageResponseDTO> changeUserPassword(@RequestParam String newPassword, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);

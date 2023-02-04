@@ -23,12 +23,17 @@ public class User {
     @Setter
     private String password;
     private String email;
+
     private Boolean verified = false;
+
     @Setter
     private byte[] cryptographicKeyIndex;
+
+    @Setter
     private long fileDeletionDelay = 2_592_000_000L;
     @Setter
     private long desiredSessionTime = 3_600_000L;
+
     @ManyToMany
     @JoinTable(
             name = "users_roles",
