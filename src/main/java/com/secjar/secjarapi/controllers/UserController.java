@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
+import com.secjar.secjarapi.dtos.requests.ChangePasswordRequestDTO;
 import com.secjar.secjarapi.dtos.requests.PasswordResetConfirmRequestDTO;
 import com.secjar.secjarapi.dtos.requests.PasswordResetRequestDTO;
 import com.secjar.secjarapi.dtos.requests.UserPatchDTO;
@@ -34,11 +35,15 @@ public class UserController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<MessageResponseDTO> changeUserPassword(@RequestParam String newPassword, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> changeUserPassword(@RequestBody ChangePasswordRequestDTO changePasswordRequestDTO, @AuthenticationPrincipal Jwt principal) {
 
-        User user = getUserFromPrincipal(principal);
+        String userUuid = getUserUuidFromPrincipal(principal);
 
-        userService.changeUserPasswordByUuid(user.getUuid(), newPassword);
+        if (!userService.verifyUserPassword(userUuid, changePasswordRequestDTO.currentPassword())) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Your current password is wrong"));
+        }
+
+        userService.changeUserPasswordByUuid(userUuid, changePasswordRequestDTO.newPassword());
 
         return ResponseEntity.ok(new MessageResponseDTO("Password changed"));
     }
@@ -62,5 +67,9 @@ public class UserController {
     private User getUserFromPrincipal(Jwt principal) {
         String userUuid = principal.getClaims().get("userUuid").toString();
         return userService.getUserByUuid(userUuid);
+    }
+
+    private String getUserUuidFromPrincipal(Jwt principal) {
+        return principal.getClaims().get("userUuid").toString();
     }
 }

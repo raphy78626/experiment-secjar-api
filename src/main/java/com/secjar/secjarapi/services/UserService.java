@@ -107,4 +107,10 @@ public class UserService {
 
         saveUser(user);
     }
+
+    public boolean verifyUserPassword(String userUuid, String password) {
+        User user = getUserByUuid(userUuid);
+
+        return passwordEncoder.matches(password, user.getPassword());
+    }
 }
