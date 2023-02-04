@@ -2,6 +2,7 @@ package com.secjar.secjarapi.controllers;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.DirectoryCreationDTO;
+import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
@@ -123,7 +124,7 @@ public class FileSystemEntryController {
         }
     }
 
-    @PatchMapping("/{uuid}/restore")
+    @PostMapping("/{uuid}/restore")
     public ResponseEntity<MessageResponseDTO> restoreSystemEntryFromTrash(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
@@ -134,34 +135,13 @@ public class FileSystemEntryController {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        fileSystemEntryInfoService.removeDeleteDate(fileSystemEntryUuid);
+        fileSystemEntryService.removeDeleteDate(fileSystemEntryUuid);
 
         return ResponseEntity.ok(new MessageResponseDTO("File restored"));
     }
 
-    @PatchMapping("/{uuid}/move")
-    public ResponseEntity<MessageResponseDTO> moveFileToDirectory(@PathVariable("uuid") String fileUuid, @RequestParam String targetDirUuid, @AuthenticationPrincipal Jwt principal) {
-
-        User user = getUserFromPrincipal(principal);
-
-        FileSystemEntryInfo fileInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUuid);
-        FileSystemEntryInfo targetDir = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(targetDirUuid);
-
-        if (!fileInfo.getUser().equals(user) || !targetDir.getUser().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
-        }
-
-        if (!targetDir.getContentType().equals("directory")) {
-            return ResponseEntity.status(400).body(new MessageResponseDTO("Target is not a directory"));
-        }
-
-        fileSystemEntryService.moveFileToDirectory(fileInfo, targetDir);
-
-        return ResponseEntity.ok(new MessageResponseDTO("File moved"));
-    }
-
-    @PatchMapping("/{uuid}/addToFavourites")
-    public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal){
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @RequestBody FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO, @AuthenticationPrincipal Jwt principal){
         User user = getUserFromPrincipal(principal);
 
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
@@ -170,24 +150,9 @@ public class FileSystemEntryController {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        fileSystemEntryInfoService.addFileSystemEntryToFavourites(fileSystemEntryUuid);
+        fileSystemEntryService.patchFileSystemEntry(fileSystemEntryUuid, fileSystemEntryPatchRequestDTO);
 
-        return ResponseEntity.ok(new MessageResponseDTO("File/Directory is now in favourites"));
-    }
-
-    @PatchMapping("/{uuid}/removeFromFavourites")
-    public ResponseEntity<MessageResponseDTO> removeFileSystemEntryFromFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
-        User user = getUserFromPrincipal(principal);
-
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
-
-        if (!fileSystemEntryInfo.getUser().equals(user)) {
-            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
-        }
-
-        fileSystemEntryInfoService.removeFileSystemEntryFromFavourites(fileSystemEntryUuid);
-
-        return ResponseEntity.ok(new MessageResponseDTO("File/Directory is no long in favourites"));
+        return ResponseEntity.status(204).build();
     }
 
     private User getUserFromPrincipal(Jwt principal) {

@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,15 @@ public class FileSystemEntryService {
         this.fileService = fileService;
     }
 
-    public void moveFileToDirectory(FileSystemEntryInfo file, FileSystemEntryInfo directory) {
-        file.setParent(directory);
-        directory.getChildren().add(file);
+    public void moveFileToDirectory(FileSystemEntryInfo fileSystemEntry, FileSystemEntryInfo targetFileSystemEntry) {
 
-        fileSystemEntryInfoService.saveFileSystemEntryInfo(file);
-        fileSystemEntryInfoService.saveFileSystemEntryInfo(directory);
+        if (!targetFileSystemEntry.getContentType().equals("directory")) {
+            throw new IllegalArgumentException("Target is not a directory");
+        }
+
+        fileSystemEntry.setParent(targetFileSystemEntry);
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntry);
     }
 
     public void deleteFileSystemEntry(String fileSystemEntryUuid) {
@@ -33,5 +37,28 @@ public class FileSystemEntryService {
         entryToDelete.getChildren().forEach(childToDelete -> deleteFileSystemEntry(childToDelete.getUuid()));
 
         fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+    }
+
+    public void removeDeleteDate(String fileSystemEntryInfoUuid) {
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
+
+        fileSystemEntryInfo.setDeleteDate(null);
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+    }
+
+    public void patchFileSystemEntry(String fileSystemEntryUuid, FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO) {
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+
+        if(fileSystemEntryPatchRequestDTO.isFavourite() != null) {
+            fileSystemEntryInfo.setFavourite(fileSystemEntryPatchRequestDTO.isFavourite());
+        }
+
+        if(fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {
+            FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
+            moveFileToDirectory(fileSystemEntryInfo, targetFileSystemEntry);
+        }
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
     }
 }

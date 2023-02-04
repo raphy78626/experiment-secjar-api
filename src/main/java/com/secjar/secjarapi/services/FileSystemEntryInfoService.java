@@ -41,24 +41,4 @@ public class FileSystemEntryInfoService {
 
         return filesToDelete.stream().flatMap(Optional::stream).collect(Collectors.toList());
     }
-
-    public void removeDeleteDate(String fileSystemEntryInfoUuid) {
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with uuid: %s does not exist", fileSystemEntryInfoUuid)));
-
-        fileSystemEntryInfo.setDeleteDate(null);
-
-        fileSystemEntryInfoRepository.save(fileSystemEntryInfo);
-    }
-
-    public void addFileSystemEntryToFavourites(String fileSystemEntryInfoUuid) {
-        FileSystemEntryInfo fileSystemEntryInfo = findFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
-        fileSystemEntryInfo.setFavourite(true);
-        saveFileSystemEntryInfo(fileSystemEntryInfo);
-    }
-
-    public void removeFileSystemEntryFromFavourites(String fileSystemEntryInfoUuid) {
-        FileSystemEntryInfo fileSystemEntryInfo = findFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
-        fileSystemEntryInfo.setFavourite(false);
-        saveFileSystemEntryInfo(fileSystemEntryInfo);
-    }
 }
