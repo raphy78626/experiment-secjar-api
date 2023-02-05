@@ -28,7 +28,7 @@ public class FileSystemEntryService {
     public void deleteFileSystemEntry(String fileSystemEntryUuid) {
         FileSystemEntryInfo entryToDelete = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
-        if(entryToDelete.getChildren().isEmpty() && !entryToDelete.getContentType().equals("directory")) {
+        if (entryToDelete.getChildren().isEmpty() && !entryToDelete.getContentType().equals("directory")) {
             fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileSystemEntryUuid);
             fileService.deleteFile(fileSystemEntryUuid);
             return;
@@ -50,13 +50,17 @@ public class FileSystemEntryService {
     public void patchFileSystemEntry(String fileSystemEntryUuid, FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO) {
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
-        if(fileSystemEntryPatchRequestDTO.isFavourite() != null) {
+        if (fileSystemEntryPatchRequestDTO.isFavourite() != null) {
             fileSystemEntryInfo.setFavourite(fileSystemEntryPatchRequestDTO.isFavourite());
         }
 
-        if(fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {
-            FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
-            moveFileToDirectory(fileSystemEntryInfo, targetFileSystemEntry);
+        if (fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {
+            if (!fileSystemEntryPatchRequestDTO.parentDirectoryUuid().equals("")) {
+                FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
+                moveFileToDirectory(fileSystemEntryInfo, targetFileSystemEntry);
+            } else {
+                fileSystemEntryInfo.setParent(null);
+            }
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
