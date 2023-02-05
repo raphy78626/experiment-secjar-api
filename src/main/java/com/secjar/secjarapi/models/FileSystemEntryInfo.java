@@ -50,4 +50,12 @@ public class FileSystemEntryInfo {
         this.contentType = contentType;
         this.user = user;
     }
+
+    public FileSystemEntryInfo(String uuid, String name, String contentType, FileSystemEntryInfo parent, User user) {
+        this.uuid = uuid;
+        this.name = name;
+        this.contentType = contentType;
+        this.parent = parent;
+        this.user = user;
+    }
 }

@@ -81,7 +81,19 @@ public class FileSystemEntryController {
 
         MultipartFile multipartFile = fileUploadDTO.file();
 
-        FileSystemEntryInfo fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), user);
+        FileSystemEntryInfo fileSystemEntryInfo;
+
+        if (fileUploadDTO.parentDirectoryUuid() != null) {
+
+            FileSystemEntryInfo parent = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUploadDTO.parentDirectoryUuid());
+            if (!parent.getContentType().equals("directory")) {
+                return ResponseEntity.status(400).body(new MessageResponseDTO("Parent is not a directory"));
+            }
+
+            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), parent, user);
+        } else {
+            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), user);
+        }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
 
@@ -141,7 +153,7 @@ public class FileSystemEntryController {
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @RequestBody FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO, @AuthenticationPrincipal Jwt principal){
+    public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @RequestBody FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
