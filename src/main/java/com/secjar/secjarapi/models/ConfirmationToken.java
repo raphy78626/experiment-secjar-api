@@ -3,6 +3,7 @@ package com.secjar.secjarapi.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class ConfirmationToken {
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
 
+    @Setter
     private LocalDateTime confirmedAt;
 
     @ManyToOne
