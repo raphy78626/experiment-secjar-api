@@ -1,9 +1,7 @@
 package com.secjar.secjarapi.controllers;
 
-import com.secjar.secjarapi.dtos.requests.ChangePasswordRequestDTO;
-import com.secjar.secjarapi.dtos.requests.PasswordResetConfirmRequestDTO;
-import com.secjar.secjarapi.dtos.requests.PasswordResetRequestDTO;
-import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
+import com.secjar.secjarapi.dtos.requests.*;
+import com.secjar.secjarapi.dtos.responses.MFAQrCodeResponse;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.PasswordResetService;
@@ -62,6 +60,20 @@ public class UserController {
         passwordResetService.confirmPasswordResetToken(passwordResetConfirmRequestDTO);
 
         return ResponseEntity.ok(new MessageResponseDTO("Password changed"));
+    }
+
+    @PostMapping("2fa/update")
+    public ResponseEntity<?> updateUserUsing2FA(@RequestBody Update2FARequest update2FARequest, @AuthenticationPrincipal Jwt principal) {
+
+        User user = getUserFromPrincipal(principal);
+
+        userService.updateUserMFA(user.getUuid(), update2FARequest.use2FA());
+
+        if (update2FARequest.use2FA()) {
+            return ResponseEntity.ok(new MFAQrCodeResponse(userService.generateQRUrl(user)));
+        }
+
+        return ResponseEntity.ok(new MessageResponseDTO("2FA authentication disabled"));
     }
 
     private User getUserFromPrincipal(Jwt principal) {

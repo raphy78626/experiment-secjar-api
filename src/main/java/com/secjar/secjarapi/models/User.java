@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.models;
 
+import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,10 @@ public class User {
     @Setter
     private long desiredSessionTime = 3_600_000L;
 
+    @Setter
+    private boolean isUsingMFA;
+    private String mFASecret;
+
     @ManyToMany
     @JoinTable(
             name = "users_roles",
@@ -51,6 +56,7 @@ public class User {
         this.password = password;
         this.email = email;
         this.roles = roles;
+        this.mFASecret = new DefaultSecretGenerator().generate();
     }
 
     public List<FileSystemEntryInfo> getFileSystemEntriesStructure() {
