@@ -6,7 +6,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.secjar.secjarapi.services.jpaUserDetailsService;
+import com.secjar.secjarapi.services.JpaUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,10 +40,10 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final jpaUserDetailsService myUserDetailsService;
+    private final JpaUserDetailsService myUserDetailsService;
     private final RsaKeyProperties rsaKeyProperties;
 
-    public SecurityConfig(jpaUserDetailsService userDetailsService, RsaKeyProperties rsaKeyProperties) {
+    public SecurityConfig(JpaUserDetailsService userDetailsService, RsaKeyProperties rsaKeyProperties) {
         this.myUserDetailsService = userDetailsService;
         this.rsaKeyProperties = rsaKeyProperties;
     }
