@@ -1,6 +1,6 @@
 package com.secjar.secjarapi.services;
 
-import com.secjar.secjarapi.models.SecurityUser;
+import com.secjar.secjarapi.models.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -22,7 +22,7 @@ public class JwtTokenService {
     }
 
     public String generateToken(Authentication authentication) {
-        SecurityUser securityUser = ((SecurityUser) authentication.getPrincipal());
+        User user = (User) authentication.getPrincipal();
 
         Instant now = Instant.now();
 
@@ -33,10 +33,10 @@ public class JwtTokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(securityUser.getDesiredSessionTime(), ChronoUnit.MILLIS))
+                .expiresAt(now.plus(user.getDesiredSessionTime(), ChronoUnit.MILLIS))
                 .subject(authentication.getName())
                 .claim("scope", scope)
-                .claim("userUuid", securityUser.getUserUuid())
+                .claim("userUuid", user.getUuid())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

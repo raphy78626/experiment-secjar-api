@@ -1,4 +1,4 @@
 package com.secjar.secjarapi.dtos.requests;
 
-public record LoginRequestDTO(String username, String password) {
+public record LoginRequestDTO(String username, String password, String mfaToken) {
 }
