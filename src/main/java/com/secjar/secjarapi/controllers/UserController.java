@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -23,19 +23,44 @@ public class UserController {
         this.passwordResetService = passwordResetService;
     }
 
-    @PatchMapping
-    public ResponseEntity<MessageResponseDTO> patchUser(@RequestBody UserPatchRequestDTO userPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
-        User user = getUserFromPrincipal(principal);
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<MessageResponseDTO> patchUser(@PathVariable("uuid") String userUuid, @RequestBody UserPatchRequestDTO userPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
 
-        userService.pathUser(user.getUuid(), userPatchRequestDTO);
+        String userUuidFromPrincipal = getUserUuidFromPrincipal(principal);
+
+        if (!userUuidFromPrincipal.equals(userUuid) && !userService.isUserAdmin(userUuidFromPrincipal)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You can't change data of this user"));
+        }
+
+        userService.pathUser(userUuid, userPatchRequestDTO);
 
         return ResponseEntity.status(204).build();
     }
 
-    @PostMapping("/changePassword")
-    public ResponseEntity<MessageResponseDTO> changeUserPassword(@RequestBody ChangePasswordRequestDTO changePasswordRequestDTO, @AuthenticationPrincipal Jwt principal) {
+    @PostMapping("/{uuid}/2fa/update")
+    public ResponseEntity<?> updateUserUsing2FA(@PathVariable("uuid") String userUuid, @RequestBody Update2FARequest update2FARequest, @AuthenticationPrincipal Jwt principal) {
 
-        String userUuid = getUserUuidFromPrincipal(principal);
+        String userUuidFromPrincipal = getUserUuidFromPrincipal(principal);
+
+        if (!userUuidFromPrincipal.equals(userUuid)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You can't change data of this user"));
+        }
+
+        userService.updateUserMFA(userUuid, update2FARequest.use2FA());
+
+        if (update2FARequest.use2FA()) {
+            return ResponseEntity.ok(new MFAQrCodeResponse(userService.generateQRUrl(userUuid)));
+        }
+
+        return ResponseEntity.ok(new MessageResponseDTO("2FA authentication disabled"));
+    }
+
+    @PostMapping("/{uuid}/changePassword")
+    public ResponseEntity<MessageResponseDTO> changeUserPassword(@PathVariable("uuid") String userUuid, @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO, @AuthenticationPrincipal Jwt principal) {
+
+        if (!userUuid.equals(getUserUuidFromPrincipal(principal))) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You can't change data of this user"));
+        }
 
         if (!userService.verifyUserPassword(userUuid, changePasswordRequestDTO.currentPassword())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Your current password is wrong"));
@@ -60,20 +85,6 @@ public class UserController {
         passwordResetService.confirmPasswordResetToken(passwordResetConfirmRequestDTO);
 
         return ResponseEntity.ok(new MessageResponseDTO("Password changed"));
-    }
-
-    @PostMapping("2fa/update")
-    public ResponseEntity<?> updateUserUsing2FA(@RequestBody Update2FARequest update2FARequest, @AuthenticationPrincipal Jwt principal) {
-
-        User user = getUserFromPrincipal(principal);
-
-        userService.updateUserMFA(user.getUuid(), update2FARequest.use2FA());
-
-        if (update2FARequest.use2FA()) {
-            return ResponseEntity.ok(new MFAQrCodeResponse(userService.generateQRUrl(user)));
-        }
-
-        return ResponseEntity.ok(new MessageResponseDTO("2FA authentication disabled"));
     }
 
     private User getUserFromPrincipal(Jwt principal) {

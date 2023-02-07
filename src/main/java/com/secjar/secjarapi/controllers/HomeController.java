@@ -14,9 +14,14 @@ public class HomeController {
         return "Hello, " + principal.getName();
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_read')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/secure")
     public String secure() {
         return "secure";
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/secure2")
+    public String secure2() {
+        return "secure2";
     }
 }

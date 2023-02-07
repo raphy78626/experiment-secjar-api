@@ -5,6 +5,7 @@ import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
+import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
 import dev.samstevens.totp.code.HashingAlgorithm;
 import dev.samstevens.totp.exceptions.QrGenerationException;
@@ -125,7 +126,9 @@ public class UserService {
         return passwordEncoder.matches(password, user.getPassword());
     }
 
-    public String generateQRUrl(User user) {
+    public String generateQRUrl(String userUuid) {
+        User user = getUserByUuid(userUuid);
+
         QrGenerator generator = new ZxingPngQrGenerator();
 
         QrData data = new QrData.Builder()
@@ -163,5 +166,12 @@ public class UserService {
         user.setCurrentDiskSpace(user.getCurrentDiskSpace() + newFileSize);
 
         saveUser(user);
+    }
+
+    public boolean isUserAdmin(String userUuid) {
+        User user = getUserByUuid(userUuid);
+        UserRole adminRole = roleService.getRole(UserRolesEnum.ROLE_ADMIN);
+
+        return user.getRoles().contains(adminRole);
     }
 }
