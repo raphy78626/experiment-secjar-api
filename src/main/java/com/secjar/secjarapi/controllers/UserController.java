@@ -3,7 +3,9 @@ package com.secjar.secjarapi.controllers;
 import com.secjar.secjarapi.dtos.requests.*;
 import com.secjar.secjarapi.dtos.responses.MFAQrCodeResponse;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
+import com.secjar.secjarapi.dtos.responses.UserInfoResponseDTO;
 import com.secjar.secjarapi.models.User;
+import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.services.PasswordResetService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,27 @@ public class UserController {
     public UserController(UserService userService, PasswordResetService passwordResetService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
+    }
+
+    @GetMapping("/{uuid}/info")
+    public ResponseEntity<?> getUserInfo(@PathVariable("uuid") String userUuid, @AuthenticationPrincipal Jwt principal) {
+        User user = getUserFromPrincipal(principal);
+
+        if (!user.getUuid().equals(userUuid) && !userService.isUserAdmin(user.getUuid())) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You can't access this user info"));
+        }
+
+        return ResponseEntity.ok().body(new UserInfoResponseDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getVerified(),
+                user.isUsingMFA(),
+                user.getFileDeletionDelay(),
+                user.getCurrentDiskSpace(),
+                user.getAllowedDiskSpace(),
+                user.getFileSystemEntries().size(),
+                user.getRoles().stream().map(UserRole::getRole).toList()
+        ));
     }
 
     @PatchMapping("/{uuid}")
