@@ -106,10 +106,7 @@ public class FileSystemEntryController {
             fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), multipartFile.getSize(), user);
         }
 
-        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
-
-        CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
-        fileService.saveAttachment(fileUploadDTO.file(), fileSystemEntryInfo, userCryptoKey);
+        fileSystemEntryService.saveFileSystemEntry(user, fileSystemEntryInfo, fileUploadDTO.file());
 
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileSystemEntryInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }

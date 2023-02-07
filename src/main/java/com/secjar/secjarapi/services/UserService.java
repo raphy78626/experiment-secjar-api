@@ -156,4 +156,12 @@ public class UserService {
 
         saveUser(user);
     }
+
+    public void increaseTakenDiskSpace(String userUuid, long newFileSize) {
+        User user = getUserByUuid(userUuid);
+
+        user.setCurrentDiskSpace(user.getCurrentDiskSpace() + newFileSize);
+
+        saveUser(user);
+    }
 }

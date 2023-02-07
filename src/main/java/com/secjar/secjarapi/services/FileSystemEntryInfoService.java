@@ -14,16 +14,24 @@ import java.util.stream.Collectors;
 public class FileSystemEntryInfoService {
 
     private final FileSystemEntryInfoRepository fileSystemEntryInfoRepository;
+    private final UserService userService;
 
-    public FileSystemEntryInfoService(FileSystemEntryInfoRepository fileSystemEntryInfoRepository) {
+    public FileSystemEntryInfoService(FileSystemEntryInfoRepository fileSystemEntryInfoRepository, UserService userService) {
         this.fileSystemEntryInfoRepository = fileSystemEntryInfoRepository;
+        this.userService = userService;
     }
 
     public void saveFileSystemEntryInfo(FileSystemEntryInfo fileSystemEntryInfo) {
+        if (fileSystemEntryInfo.getSize() + fileSystemEntryInfo.getUser().getCurrentDiskSpace() > fileSystemEntryInfo.getUser().getAllowedDiskSpace()) {
+            throw new IllegalStateException(String.format("Can save file with uuid %s. Allowed disc size exceeded", fileSystemEntryInfo.getUuid()));
+        }
+
+        userService.increaseTakenDiskSpace(fileSystemEntryInfo.getUser().getUuid(), fileSystemEntryInfo.getSize());
+
         fileSystemEntryInfoRepository.save(fileSystemEntryInfo);
     }
 
-    public void deleteFileSystemEntryInfoByUuid(String fileSystemEntryInfoUuid){
+    public void deleteFileSystemEntryInfoByUuid(String fileSystemEntryInfoUuid) {
         fileSystemEntryInfoRepository.deleteByUuid(fileSystemEntryInfoUuid);
     }
 
@@ -35,7 +43,7 @@ public class FileSystemEntryInfoService {
     public List<FileSystemEntryInfo> getAllWithDeleteDateLessThan(Timestamp timestamp) {
         List<Optional<FileSystemEntryInfo>> filesToDelete = fileSystemEntryInfoRepository.findAllByDeleteDateLessThan(timestamp);
 
-        if(filesToDelete.isEmpty()) {
+        if (filesToDelete.isEmpty()) {
             return Collections.emptyList();
         }
 

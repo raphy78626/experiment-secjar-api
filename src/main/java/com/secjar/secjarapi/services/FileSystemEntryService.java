@@ -3,7 +3,9 @@ package com.secjar.secjarapi.services;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
+import com.secjar.secjarapi.models.User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,10 +19,19 @@ import java.util.zip.ZipOutputStream;
 public class FileSystemEntryService {
     private final FileSystemEntryInfoService fileSystemEntryInfoService;
     private final FileService fileService;
+    private final HsmService hsmService;
 
-    public FileSystemEntryService(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService) {
+    public FileSystemEntryService(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, HsmService hsmService) {
         this.fileSystemEntryInfoService = fileSystemEntryInfoService;
         this.fileService = fileService;
+        this.hsmService = hsmService;
+    }
+
+    public void saveFileSystemEntry(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+
+        CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
+        fileService.saveAttachment(file, fileSystemEntryInfo, userCryptoKey);
     }
 
     public void moveFileToDirectory(FileSystemEntryInfo fileSystemEntry, FileSystemEntryInfo targetFileSystemEntry) {

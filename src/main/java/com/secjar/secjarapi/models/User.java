@@ -39,6 +39,11 @@ public class User {
     private boolean isUsingMFA;
     private String mFASecret;
 
+    @Setter
+    private long allowedDiskSpace;
+    @Setter
+    private long currentDiskSpace;
+
     @ManyToMany
     @JoinTable(
             name = "users_roles",
