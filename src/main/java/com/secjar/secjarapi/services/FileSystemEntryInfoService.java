@@ -27,12 +27,12 @@ public class FileSystemEntryInfoService {
         fileSystemEntryInfoRepository.deleteByUuid(fileSystemEntryInfoUuid);
     }
 
-    public FileSystemEntryInfo findFileSystemEntryInfoByUuid(String fileSystemEntryInfoUuid) {
+    public FileSystemEntryInfo getFileSystemEntryInfoByUuid(String fileSystemEntryInfoUuid) {
         //TODO: create custom exception
         return fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with uuid: %s does not exist", fileSystemEntryInfoUuid)));
     }
 
-    public List<FileSystemEntryInfo> findAllWithDeleteDateLessThan(Timestamp timestamp) {
+    public List<FileSystemEntryInfo> getAllWithDeleteDateLessThan(Timestamp timestamp) {
         List<Optional<FileSystemEntryInfo>> filesToDelete = fileSystemEntryInfoRepository.findAllByDeleteDateLessThan(timestamp);
 
         if(filesToDelete.isEmpty()) {

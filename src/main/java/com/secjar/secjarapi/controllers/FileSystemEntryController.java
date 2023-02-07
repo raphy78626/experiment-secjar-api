@@ -56,7 +56,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -96,7 +96,7 @@ public class FileSystemEntryController {
 
         if (fileUploadDTO.parentDirectoryUuid() != null) {
 
-            FileSystemEntryInfo parent = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileUploadDTO.parentDirectoryUuid());
+            FileSystemEntryInfo parent = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileUploadDTO.parentDirectoryUuid());
             if (!parent.getContentType().equals("directory")) {
                 return ResponseEntity.status(400).body(new MessageResponseDTO("Parent is not a directory"));
             }
@@ -131,7 +131,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -152,7 +152,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
@@ -167,7 +167,7 @@ public class FileSystemEntryController {
     public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavourites(@PathVariable("uuid") String fileSystemEntryUuid, @RequestBody FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (!fileSystemEntryInfo.getUser().equals(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));

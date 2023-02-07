@@ -22,7 +22,7 @@ public class TaskSchedulingService {
     public void removeFileSystemEntriesFromTrash() {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-        List<FileSystemEntryInfo> filesToDelete = fileSystemEntryInfoService.findAllWithDeleteDateLessThan(timestamp);
+        List<FileSystemEntryInfo> filesToDelete = fileSystemEntryInfoService.getAllWithDeleteDateLessThan(timestamp);
 
         filesToDelete.forEach(file -> fileSystemEntryService.deleteFileSystemEntry(file.getUuid()));
     }

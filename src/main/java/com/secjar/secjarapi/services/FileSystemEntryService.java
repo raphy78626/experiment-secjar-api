@@ -35,7 +35,7 @@ public class FileSystemEntryService {
     }
 
     public void deleteFileSystemEntry(String fileSystemEntryUuid) {
-        FileSystemEntryInfo entryToDelete = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+        FileSystemEntryInfo entryToDelete = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (entryToDelete.getChildren().isEmpty() && !entryToDelete.getContentType().equals("directory")) {
             fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileSystemEntryUuid);
@@ -49,7 +49,7 @@ public class FileSystemEntryService {
     }
 
     public void removeDeleteDate(String fileSystemEntryInfoUuid) {
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
 
         fileSystemEntryInfo.setDeleteDate(null);
 
@@ -57,7 +57,7 @@ public class FileSystemEntryService {
     }
 
     public void patchFileSystemEntry(String fileSystemEntryUuid, FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO) {
-        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (fileSystemEntryPatchRequestDTO.isFavourite() != null) {
             fileSystemEntryInfo.setFavourite(fileSystemEntryPatchRequestDTO.isFavourite());
@@ -65,7 +65,7 @@ public class FileSystemEntryService {
 
         if (fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {
             if (!fileSystemEntryPatchRequestDTO.parentDirectoryUuid().equals("")) {
-                FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
+                FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
                 moveFileToDirectory(fileSystemEntryInfo, targetFileSystemEntry);
             } else {
                 fileSystemEntryInfo.setParent(null);
@@ -76,7 +76,7 @@ public class FileSystemEntryService {
     }
 
     public ByteArrayOutputStream getZippedDirectory(String directoryUuid, CryptoServerCXI.Key keyForDecryption) {
-        FileSystemEntryInfo targetDirectory = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(directoryUuid);
+        FileSystemEntryInfo targetDirectory = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(directoryUuid);
 
         if (!targetDirectory.getContentType().equals("directory")) {
             throw new IllegalArgumentException("Target is not a directory");
