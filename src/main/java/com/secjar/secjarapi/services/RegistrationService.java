@@ -55,7 +55,7 @@ public class RegistrationService {
     }
 
     public void confirmRegistrationToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token).orElseThrow(() -> new IllegalStateException(String.format("Confirmation token %s not found", token)));
+        ConfirmationToken confirmationToken = confirmationTokenService.getTokenByToken(token);
 
         if (confirmationToken.getConfirmedAt() != null) {
             throw new IllegalStateException("Account already confirmed");

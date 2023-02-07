@@ -5,7 +5,6 @@ import com.secjar.secjarapi.repositories.ConfirmationTokenRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class ConfirmationTokenService {
@@ -20,12 +19,12 @@ public class ConfirmationTokenService {
         confirmationTokenRepository.save(token);
     }
 
-    public Optional<ConfirmationToken> getToken(String token) {
-        return confirmationTokenRepository.findByToken(token);
+    public ConfirmationToken getTokenByToken(String token) {
+        return confirmationTokenRepository.findByToken(token).orElseThrow(() -> new IllegalStateException(String.format("Confirmation token %s not found", token)));
     }
 
     public void setConfirmedAt(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException(String.format("Token %s not found", token)));
+        ConfirmationToken confirmationToken = getTokenByToken(token);
 
         confirmationToken.setConfirmedAt(LocalDateTime.now());
 
