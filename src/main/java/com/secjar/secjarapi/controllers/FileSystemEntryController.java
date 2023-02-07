@@ -90,9 +90,9 @@ public class FileSystemEntryController {
                 return ResponseEntity.status(400).body(new MessageResponseDTO("Parent is not a directory"));
             }
 
-            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), parent, user);
+            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), multipartFile.getSize(), parent, user);
         } else {
-            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), user);
+            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), multipartFile.getSize(), user);
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
@@ -108,7 +108,7 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", user);
+        FileSystemEntryInfo fileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", 0, user);
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileInfo);
 

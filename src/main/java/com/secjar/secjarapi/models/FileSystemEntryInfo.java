@@ -23,11 +23,13 @@ public class FileSystemEntryInfo {
 
     private String name;
     private String contentType;
+    private long size;
+
+    @Setter
+    private boolean isFavourite;
 
     @Setter
     private Timestamp deleteDate;
-    @Setter
-    private boolean isFavourite;
 
     @Setter
     @JsonIgnore
@@ -44,17 +46,19 @@ public class FileSystemEntryInfo {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public FileSystemEntryInfo(String uuid, String name, String contentType, User user) {
+    public FileSystemEntryInfo(String uuid, String name, String contentType, long size, User user) {
         this.uuid = uuid;
         this.name = name;
         this.contentType = contentType;
+        this.size = size;
         this.user = user;
     }
 
-    public FileSystemEntryInfo(String uuid, String name, String contentType, FileSystemEntryInfo parent, User user) {
+    public FileSystemEntryInfo(String uuid, String name, String contentType, long size, FileSystemEntryInfo parent, User user) {
         this.uuid = uuid;
         this.name = name;
         this.contentType = contentType;
+        this.size = size;
         this.parent = parent;
         this.user = user;
     }
