@@ -1,8 +1,17 @@
 package com.secjar.secjarapi.services;
 
+import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import org.springframework.stereotype.Service;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 
 @Service
 public class FileSystemEntryService {
@@ -64,5 +73,54 @@ public class FileSystemEntryService {
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+    }
+
+    public ByteArrayOutputStream getZippedDirectory(String directoryUuid, CryptoServerCXI.Key keyForDecryption) {
+        FileSystemEntryInfo targetDirectory = fileSystemEntryInfoService.findFileSystemEntryInfoByUuid(directoryUuid);
+
+        if (!targetDirectory.getContentType().equals("directory")) {
+            throw new IllegalArgumentException("Target is not a directory");
+        }
+
+        if (targetDirectory.getChildren().isEmpty()) {
+            throw new IllegalArgumentException("Target directory is empty");
+        }
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+            ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
+
+            ZippingDFSHelper(targetDirectory.getChildren(), zipOutputStream, keyForDecryption, "");
+
+            zipOutputStream.close();
+            bufferedOutputStream.close();
+            byteArrayOutputStream.close();
+
+            return byteArrayOutputStream;
+        } catch (IOException e) {
+            throw new RuntimeException("Error while creating zip from directory", e);
+        }
+    }
+
+    private void ZippingDFSHelper(List<FileSystemEntryInfo> fileSystemEntryInfoChildren, ZipOutputStream zipOutputStream, CryptoServerCXI.Key keyForDecryption, String path) {
+        for (FileSystemEntryInfo fileSystemEntryInfo : fileSystemEntryInfoChildren) {
+            if (fileSystemEntryInfo.getChildren().isEmpty()) {
+                byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
+
+                try {
+                    zipOutputStream.putNextEntry(new ZipEntry(path + fileSystemEntryInfo.getName()));
+
+                    zipOutputStream.write(fileBytes, 0, fileBytes.length);
+
+                    zipOutputStream.closeEntry();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                String newPath = path + fileSystemEntryInfo.getName() + "/";
+                ZippingDFSHelper(fileSystemEntryInfo.getChildren(), zipOutputStream, keyForDecryption, newPath);
+            }
+        }
     }
 }

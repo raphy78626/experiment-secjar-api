@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.util.List;
@@ -63,15 +64,25 @@ public class FileSystemEntryController {
 
         CryptoServerCXI.Key keyForDecryption = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
 
-        byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
+        if (!fileSystemEntryInfo.getContentType().equals("directory")) {
+            byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
 
-        ByteArrayResource byteArrayResource = new ByteArrayResource(fileBytes);
+            ByteArrayResource byteArrayResource = new ByteArrayResource(fileBytes);
+
+            return ResponseEntity
+                    .ok()
+                    .contentLength(byteArrayResource.contentLength())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(byteArrayResource);
+        }
+
+        ByteArrayOutputStream zippedDirectory = fileSystemEntryService.getZippedDirectory(fileSystemEntryUuid, keyForDecryption);
 
         return ResponseEntity
                 .ok()
-                .contentLength(byteArrayResource.contentLength())
+                .contentLength(zippedDirectory.size())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(byteArrayResource);
+                .body(zippedDirectory.toByteArray());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
