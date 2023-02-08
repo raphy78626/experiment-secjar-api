@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -33,16 +34,7 @@ public class FileSystemEntryService {
     public void saveFile(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
         Set<String> takenFileNames = user.getFileSystemEntries().stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
 
-        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        String fileNameWithoutExtension = FilenameUtils.removeExtension(file.getOriginalFilename());
-
-        int i = 1;
-        while (takenFileNames.contains(fileNameWithoutExtension + "." + fileExtension)) {
-            fileNameWithoutExtension = FilenameUtils.removeExtension(file.getOriginalFilename()).concat("-" + i);
-            i++;
-        }
-
-        fileSystemEntryInfo.setName(fileNameWithoutExtension + "." + fileExtension);
+        fileSystemEntryInfo.setName(getNotTakenFileName(file.getOriginalFilename(), takenFileNames));
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
 
@@ -167,5 +159,33 @@ public class FileSystemEntryService {
                 ZippingDFSHelper(fileSystemEntryInfo.getChildren(), zipOutputStream, keyForDecryption, newPath);
             }
         }
+    }
+
+    public FileSystemEntryInfo createFileCopy(FileSystemEntryInfo fileInfo) {
+
+        Set<String> takenFileNames = fileInfo.getUser().getFileSystemEntries().stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+
+        String copiedFileName = getNotTakenFileName(fileInfo.getName(), takenFileNames);
+
+        FileSystemEntryInfo copiedFileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), copiedFileName, fileInfo.getContentType(), fileInfo.getSize(), fileInfo.getUser());
+
+        fileService.createFileCopy(fileInfo, copiedFileInfo);
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(copiedFileInfo);
+
+        return fileInfo;
+    }
+
+    private String getNotTakenFileName(String fileName, Set<String> takenFileNames) {
+        String fileExtension = FilenameUtils.getExtension(fileName);
+        String fileNameWithoutExtension = FilenameUtils.removeExtension(fileName);
+
+        int i = 1;
+        while (takenFileNames.contains(fileNameWithoutExtension + "." + fileExtension)) {
+            fileNameWithoutExtension = FilenameUtils.removeExtension(fileName).concat("-" + i);
+            i++;
+        }
+
+        return fileNameWithoutExtension + "." + fileExtension;
     }
 }

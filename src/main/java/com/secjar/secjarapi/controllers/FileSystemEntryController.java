@@ -123,6 +123,26 @@ public class FileSystemEntryController {
         return ResponseEntity.created(URI.create(String.format("/file/%s", directoryInfo.getUuid()))).body(new MessageResponseDTO("Directory created"));
     }
 
+    @PostMapping("/{uuid}/copy")
+    public ResponseEntity<MessageResponseDTO> copyFile(@PathVariable("uuid") String fileUuid, @AuthenticationPrincipal Jwt principal) {
+        User user = getUserFromPrincipal(principal);
+
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileUuid);
+
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        if(fileSystemEntryInfo.getContentType().equals("directory")) {
+            return ResponseEntity.status(400).body(new MessageResponseDTO("Target is not a file"));
+        }
+
+        FileSystemEntryInfo copiedFileInfo = fileSystemEntryService.createFileCopy(fileSystemEntryInfo);
+
+        return ResponseEntity.created(URI.create(String.format("/file/%s", copiedFileInfo.getUuid()))).body(new MessageResponseDTO("File created"));
+    }
+
+
     @DeleteMapping("/{uuid}")
     public ResponseEntity<MessageResponseDTO> deleteFileSystemEntry(@PathVariable("uuid") String fileSystemEntryUuid, @RequestParam boolean instantDelete, @AuthenticationPrincipal Jwt principal) {
 

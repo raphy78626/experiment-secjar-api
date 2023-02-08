@@ -72,6 +72,41 @@ public class FileService {
         return hsmService.decryptData(fileBytes, keyForDecryption);
     }
 
+    public void createFileCopy(FileSystemEntryInfo originalFileInfo, FileSystemEntryInfo copiedFileInfo) {
+        Path filePath = Path.of(fileSavePath, originalFileInfo.getUuid(), originalFileInfo.getName());
+        File file = new File(filePath.toUri());
+
+        byte[] fileBytes;
+        try {
+            fileBytes = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Error while getting the file", e);
+        }
+
+
+        filePath = Path.of(fileSavePath, copiedFileInfo.getUuid(), originalFileInfo.getName());
+        file = new File(filePath.toUri());
+
+        try {
+            file.getParentFile().mkdir();
+            file.createNewFile();
+        } catch (IOException e) {
+            //TODO: Handle exception
+            throw new RuntimeException("Error while creating the file", e);
+        }
+
+        try {
+            OutputStream targetFileOutputStream = new FileOutputStream(file);
+
+            targetFileOutputStream.write(fileBytes);
+
+            targetFileOutputStream.close();
+        } catch (IOException e) {
+            //TODO: Handle exception
+            throw new RuntimeException("Error while saving the file", e);
+        }
+    }
+
     public void deleteFile(String fileUuid) {
 
         Path attachmentDirectoryPath = Path.of(fileSavePath, fileUuid);
