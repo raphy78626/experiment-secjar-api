@@ -106,7 +106,7 @@ public class FileSystemEntryController {
             fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), multipartFile.getSize(), user);
         }
 
-        fileSystemEntryService.saveFileSystemEntry(user, fileSystemEntryInfo, fileUploadDTO.file());
+        fileSystemEntryService.saveFile(user, fileSystemEntryInfo, fileUploadDTO.file());
 
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileSystemEntryInfo.getUuid()))).body(new MessageResponseDTO("File created"));
     }
@@ -116,11 +116,11 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo fileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", 0, user);
+        FileSystemEntryInfo directoryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", 0, user);
 
-        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileInfo);
+        fileSystemEntryService.saveDirectory(directoryInfo);
 
-        return ResponseEntity.created(URI.create(String.format("/file/%s", fileInfo.getUuid()))).body(new MessageResponseDTO("Directory created"));
+        return ResponseEntity.created(URI.create(String.format("/file/%s", directoryInfo.getUuid()))).body(new MessageResponseDTO("Directory created"));
     }
 
     @DeleteMapping("/{uuid}")

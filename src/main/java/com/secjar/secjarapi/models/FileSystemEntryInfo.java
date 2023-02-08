@@ -21,6 +21,8 @@ public class FileSystemEntryInfo {
     private long id;
     private String uuid;
 
+    @Setter
+    @Column(unique = true)
     private String name;
     private String contentType;
     private long size;

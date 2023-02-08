@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.services;
 
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
+import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.FileSystemEntryInfoRepository;
 import org.springframework.stereotype.Service;
 
@@ -48,5 +49,15 @@ public class FileSystemEntryInfoService {
         }
 
         return filesToDelete.stream().flatMap(Optional::stream).collect(Collectors.toList());
+    }
+
+    public List<FileSystemEntryInfo> getAllByContentType(User user, String contentType) {
+        List<Optional<FileSystemEntryInfo>> files = fileSystemEntryInfoRepository.findAllByUserAndContentType(user, contentType);
+
+        if (files.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return files.stream().flatMap(Optional::stream).collect(Collectors.toList());
     }
 }

@@ -4,6 +4,7 @@ import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,8 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -27,11 +30,42 @@ public class FileSystemEntryService {
         this.hsmService = hsmService;
     }
 
-    public void saveFileSystemEntry(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
+    public void saveFile(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
+        Set<String> takenFileNames = user.getFileSystemEntries().stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        String fileNameWithoutExtension = FilenameUtils.removeExtension(file.getOriginalFilename());
+
+        int i = 1;
+        while (takenFileNames.contains(fileNameWithoutExtension + "." + fileExtension)) {
+            fileNameWithoutExtension = FilenameUtils.removeExtension(file.getOriginalFilename()).concat("-" + i);
+            i++;
+        }
+
+        fileSystemEntryInfo.setName(fileNameWithoutExtension + "." + fileExtension);
+
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
 
         CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
         fileService.saveAttachment(file, fileSystemEntryInfo, userCryptoKey);
+    }
+
+    public void saveDirectory(FileSystemEntryInfo directoryInfo) {
+        List<FileSystemEntryInfo> userDirectories = fileSystemEntryInfoService.getAllByContentType(directoryInfo.getUser(), "directory");
+
+        Set<String> takenDirectoryNames = userDirectories.stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+
+        String newDirectoryName = directoryInfo.getName();
+
+        int i = 1;
+        while (takenDirectoryNames.contains(newDirectoryName)) {
+            newDirectoryName = directoryInfo.getName().concat("-" + i);
+            i++;
+        }
+
+        directoryInfo.setName(newDirectoryName);
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(directoryInfo);
     }
 
     public void moveFileToDirectory(FileSystemEntryInfo fileSystemEntry, FileSystemEntryInfo targetFileSystemEntry) {

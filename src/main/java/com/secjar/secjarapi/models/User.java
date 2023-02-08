@@ -6,8 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -53,7 +54,7 @@ public class User {
     private List<UserRole> roles;
 
     @OneToMany(mappedBy = "user")
-    private List<FileSystemEntryInfo> fileSystemEntries = new ArrayList<>();
+    private Set<FileSystemEntryInfo> fileSystemEntries = new HashSet<>();
 
     public User(String uuid, String username, String password, String email, List<UserRole> roles) {
         this.uuid = uuid;
