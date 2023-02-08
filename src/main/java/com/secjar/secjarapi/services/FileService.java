@@ -59,9 +59,9 @@ public class FileService {
 
     public byte[] getFileBytes(FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForDecryption) {
 
-        Path FileDirectoryPath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), fileSystemEntryInfo.getName());
+        Path fileDirectoryPath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), fileSystemEntryInfo.getName());
 
-        File encryptedFile = new File(FileDirectoryPath.toUri());
+        File encryptedFile = new File(fileDirectoryPath.toUri());
         byte[] fileBytes;
         try {
             fileBytes = Files.readAllBytes(encryptedFile.toPath());
