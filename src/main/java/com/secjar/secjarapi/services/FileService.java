@@ -26,7 +26,7 @@ public class FileService {
     }
 
     public void saveAttachment(MultipartFile multipartFile, FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForEncryption) {
-        Path filePath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), multipartFile.getOriginalFilename());
+        Path filePath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), fileSystemEntryInfo.getName());
         File file = new File(filePath.toUri());
 
         try {
