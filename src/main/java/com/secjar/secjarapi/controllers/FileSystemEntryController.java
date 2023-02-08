@@ -4,8 +4,10 @@ import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.DirectoryCreationDTO;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
+import com.secjar.secjarapi.dtos.requests.ShareFilesRequestDTO;
 import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
+import com.secjar.secjarapi.dtos.responses.SharedFileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.*;
@@ -20,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -51,6 +55,16 @@ public class FileSystemEntryController {
         return ResponseEntity.ok(new FileSystemEntriesStructureResponseDTO(fileSystemEntryInfoList));
     }
 
+    @GetMapping("/info/shared")
+    public ResponseEntity<SharedFileSystemEntriesStructureResponseDTO> getSharedFileSystemEntries(@AuthenticationPrincipal Jwt principal) {
+
+        User user = getUserFromPrincipal(principal);
+
+        List<FileSystemEntryInfo> fileSystemEntryInfoList = user.getSharedFileSystemEntriesStructure();
+
+        return ResponseEntity.ok(new SharedFileSystemEntriesStructureResponseDTO(fileSystemEntryInfoList));
+    }
+
     @GetMapping("/{uuid}")
     public ResponseEntity<?> downloadFileSystemEntry(@PathVariable(name = "uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
 
@@ -58,11 +72,11 @@ public class FileSystemEntryController {
 
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
-        if (!fileSystemEntryInfo.getUser().equals(user)) {
+        if (!fileSystemEntryInfo.getAuthorizedUsers().contains(user)) {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        CryptoServerCXI.Key keyForDecryption = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
+        CryptoServerCXI.Key keyForDecryption = hsmService.getKeyFromStore(fileSystemEntryInfo.getUser().getCryptographicKeyIndex());
 
         if (!fileSystemEntryInfo.getContentType().equals("directory")) {
             byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
@@ -133,7 +147,7 @@ public class FileSystemEntryController {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
         }
 
-        if(fileSystemEntryInfo.getContentType().equals("directory")) {
+        if (fileSystemEntryInfo.getContentType().equals("directory")) {
             return ResponseEntity.status(400).body(new MessageResponseDTO("Target is not a file"));
         }
 
@@ -193,6 +207,29 @@ public class FileSystemEntryController {
         fileSystemEntryService.patchFileSystemEntry(fileSystemEntryUuid, fileSystemEntryPatchRequestDTO);
 
         return ResponseEntity.status(204).build();
+    }
+
+    @PostMapping("/share")
+    public ResponseEntity<MessageResponseDTO> shareFiles(@RequestBody ShareFilesRequestDTO shareFilesRequestDTO, @AuthenticationPrincipal Jwt principal) {
+        User user = getUserFromPrincipal(principal);
+
+        Set<FileSystemEntryInfo> filesToShare = new HashSet<>();
+
+        for (String fileUuid : shareFilesRequestDTO.filesToShareUuid()) {
+            FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileUuid);
+            if (!fileSystemEntryInfo.getUser().equals(user)) {
+                return ResponseEntity.status(403).body(new MessageResponseDTO(String.format("You don't have permission for that file %s", fileUuid)));
+            }
+            filesToShare.add(fileSystemEntryInfo);
+        }
+
+        for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
+            for (String userUuid : shareFilesRequestDTO.usersToShareWithUuids()) {
+                userService.shareFileWithUser(fileSystemEntryInfo, userUuid);
+            }
+        }
+
+        return ResponseEntity.ok(new MessageResponseDTO("Files shared"));
     }
 
     private User getUserFromPrincipal(Jwt principal) {

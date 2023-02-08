@@ -56,6 +56,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<FileSystemEntryInfo> fileSystemEntries = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "shared_files",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id")
+    )
+    private Set<FileSystemEntryInfo> sharedFileSystemEntries = new HashSet<>();
+
     public User(String uuid, String username, String password, String email, List<UserRole> roles) {
         this.uuid = uuid;
         this.username = username;
@@ -67,5 +75,9 @@ public class User {
 
     public List<FileSystemEntryInfo> getFileSystemEntriesStructure() {
         return fileSystemEntries.stream().filter(fileInfo -> fileInfo.getParent() == null).toList();
+    }
+
+    public List<FileSystemEntryInfo> getSharedFileSystemEntriesStructure() {
+        return sharedFileSystemEntries.stream().filter(fileInfo -> fileInfo.getParent() == null).toList();
     }
 }

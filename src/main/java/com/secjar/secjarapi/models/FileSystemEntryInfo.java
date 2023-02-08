@@ -8,7 +8,9 @@ import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -47,6 +49,10 @@ public class FileSystemEntryInfo {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "sharedFileSystemEntries")
+    private Set<User> authorizedUsers = new HashSet<>();
 
     public FileSystemEntryInfo(String uuid, String name, String contentType, long size, User user) {
         this.uuid = uuid;

@@ -4,6 +4,7 @@ import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
+import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
@@ -173,5 +174,13 @@ public class UserService {
         UserRole adminRole = roleService.getRole(UserRolesEnum.ROLE_ADMIN);
 
         return user.getRoles().contains(adminRole);
+    }
+
+    public void shareFileWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid) {
+        User user = getUserByUuid(userUuid);
+
+        user.getSharedFileSystemEntries().add(fileSystemEntryInfo);
+
+        saveUser(user);
     }
 }
