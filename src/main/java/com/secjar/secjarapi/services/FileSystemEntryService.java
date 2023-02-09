@@ -33,25 +33,21 @@ public class FileSystemEntryService {
         this.userService = userService;
     }
 
-    public void saveFile(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
-        Set<String> takenFileNames = user.getFileSystemEntries().stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+    public void saveFile(User user, FileSystemEntryInfo fileInfo, MultipartFile file) {
+        String fileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getUser());
 
-        fileSystemEntryInfo.setName(getNotTakenFileName(FilenameUtils.removeExtension(file.getOriginalFilename()), takenFileNames));
+        fileInfo.setName(fileName);
 
-        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileInfo);
 
         CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
-        fileService.saveAttachment(file, fileSystemEntryInfo, userCryptoKey);
+        fileService.saveAttachment(file, fileInfo, userCryptoKey);
     }
 
     public void saveDirectory(FileSystemEntryInfo directoryInfo) {
-        List<FileSystemEntryInfo> userDirectories = fileSystemEntryInfoService.getAllByContentType(directoryInfo.getUser(), "directory");
+        String directoryName = getNotTakenDirectoryName(directoryInfo.getName(), directoryInfo.getUser());
 
-        Set<String> takenDirectoryNames = userDirectories.stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
-
-        String newDirectoryName = getNotTakenFileName(directoryInfo.getName(), takenDirectoryNames);
-
-        directoryInfo.setName(newDirectoryName);
+        directoryInfo.setName(directoryName);
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(directoryInfo);
     }
@@ -189,15 +185,31 @@ public class FileSystemEntryService {
         }
     }
 
-    private String getNotTakenFileName(String fileName, Set<String> takenFileNames) {
-        String newFileName = fileName;
+    private String getNotTakenFileName(String fileName, User user) {
+        Set<String> takenFileNames = user.getFileSystemEntries().stream().filter(fileSystemEntryInfo -> !fileSystemEntryInfo.getContentType().equals("directory")).map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+
+        String fileExtension = FilenameUtils.getExtension(fileName);
+        String fileNameWithoutExtension = FilenameUtils.removeExtension(fileName);
 
         int i = 1;
-        while (takenFileNames.contains(newFileName)) {
-            newFileName = fileName.concat("-" + i);
+        while (takenFileNames.contains(fileNameWithoutExtension + "." + fileExtension)) {
+            fileNameWithoutExtension = FilenameUtils.removeExtension(fileName).concat("-" + i);
             i++;
         }
 
-        return newFileName;
+        return fileNameWithoutExtension + "." + fileExtension;
+    }
+
+    private String getNotTakenDirectoryName(String directoryName, User user) {
+        Set<String> takenDirectoryNames = user.getFileSystemEntries().stream().filter(fileSystemEntryInfo -> fileSystemEntryInfo.getContentType().equals("directory")).map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+        String newDirectoryName = directoryName;
+
+        int i = 1;
+        while (takenDirectoryNames.contains(newDirectoryName)) {
+            newDirectoryName = directoryName.concat("-" + i);
+            i++;
+        }
+
+        return newDirectoryName;
     }
 }
