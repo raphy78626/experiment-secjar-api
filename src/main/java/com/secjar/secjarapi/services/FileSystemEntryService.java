@@ -47,13 +47,7 @@ public class FileSystemEntryService {
 
         Set<String> takenDirectoryNames = userDirectories.stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
 
-        String newDirectoryName = directoryInfo.getName();
-
-        int i = 1;
-        while (takenDirectoryNames.contains(newDirectoryName)) {
-            newDirectoryName = directoryInfo.getName().concat("-" + i);
-            i++;
-        }
+        String newDirectoryName = getNotTakenFileName(directoryInfo.getName(), takenDirectoryNames);
 
         directoryInfo.setName(newDirectoryName);
 
