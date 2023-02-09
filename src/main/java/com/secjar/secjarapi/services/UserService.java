@@ -145,7 +145,7 @@ public class UserService {
         byte[] imageData;
 
         try {
-             imageData = generator.generate(data);
+            imageData = generator.generate(data);
         } catch (QrGenerationException e) {
             throw new RuntimeException(e);
         }
@@ -176,11 +176,17 @@ public class UserService {
         return user.getRoles().contains(adminRole);
     }
 
-    public void shareFileWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid) {
+    public void shareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid) {
         User user = getUserByUuid(userUuid);
 
         user.getSharedFileSystemEntries().add(fileSystemEntryInfo);
 
         saveUser(user);
+
+        if (fileSystemEntryInfo.getContentType().equals("directory")) {
+            for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
+                shareFileSystemEntryWithUser(childFileSystemEntry, userUuid);
+            }
+        }
     }
 }

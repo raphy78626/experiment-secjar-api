@@ -210,7 +210,7 @@ public class FileSystemEntryController {
     }
 
     @PostMapping("/share")
-    public ResponseEntity<MessageResponseDTO> shareFiles(@RequestBody ShareFilesRequestDTO shareFilesRequestDTO, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> shareFileSystemEntry(@RequestBody ShareFilesRequestDTO shareFilesRequestDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
         Set<FileSystemEntryInfo> filesToShare = new HashSet<>();
@@ -225,7 +225,8 @@ public class FileSystemEntryController {
 
         for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
             for (String userUuid : shareFilesRequestDTO.usersToShareWithUuids()) {
-                userService.shareFileWithUser(fileSystemEntryInfo, userUuid);
+
+                userService.shareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid);
             }
         }
 
