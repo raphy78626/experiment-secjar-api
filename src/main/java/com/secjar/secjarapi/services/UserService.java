@@ -3,6 +3,7 @@ package com.secjar.secjarapi.services;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
+import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
@@ -176,16 +177,20 @@ public class UserService {
         return user.getRoles().contains(adminRole);
     }
 
-    public void shareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid) {
+    public void updateShareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid, ShareActionsEnum shareAction) {
         User user = getUserByUuid(userUuid);
 
-        user.getSharedFileSystemEntries().add(fileSystemEntryInfo);
+        if (shareAction == ShareActionsEnum.START_SHARE) {
+            user.getSharedFileSystemEntries().add(fileSystemEntryInfo);
+        } else if (shareAction == ShareActionsEnum.STOP_SHARE) {
+            user.getSharedFileSystemEntries().remove(fileSystemEntryInfo);
+        }
 
         saveUser(user);
 
         if (fileSystemEntryInfo.getContentType().equals("directory")) {
             for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
-                shareFileSystemEntryWithUser(childFileSystemEntry, userUuid);
+                updateShareFileSystemEntryWithUser(childFileSystemEntry, userUuid, shareAction);
             }
         }
     }

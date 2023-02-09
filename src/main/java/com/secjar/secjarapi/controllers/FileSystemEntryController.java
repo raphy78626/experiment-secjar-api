@@ -2,9 +2,9 @@ package com.secjar.secjarapi.controllers;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.DirectoryCreationDTO;
+import com.secjar.secjarapi.dtos.requests.FileSystemEntriesShareRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
-import com.secjar.secjarapi.dtos.requests.ShareFilesRequestDTO;
 import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.SharedFileSystemEntriesStructureResponseDTO;
@@ -210,12 +210,12 @@ public class FileSystemEntryController {
     }
 
     @PostMapping("/share")
-    public ResponseEntity<MessageResponseDTO> shareFileSystemEntry(@RequestBody ShareFilesRequestDTO shareFilesRequestDTO, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> updateFileSystemEntryShare(@RequestBody FileSystemEntriesShareRequestDTO fileSystemEntriesShareRequestDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
         Set<FileSystemEntryInfo> filesToShare = new HashSet<>();
 
-        for (String fileUuid : shareFilesRequestDTO.filesToShareUuid()) {
+        for (String fileUuid : fileSystemEntriesShareRequestDTO.fileSystemEntriesUuid()) {
             FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileUuid);
             if (!fileSystemEntryInfo.getUser().equals(user)) {
                 return ResponseEntity.status(403).body(new MessageResponseDTO(String.format("You don't have permission for that file %s", fileUuid)));
@@ -224,9 +224,8 @@ public class FileSystemEntryController {
         }
 
         for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
-            for (String userUuid : shareFilesRequestDTO.usersToShareWithUuids()) {
-
-                userService.shareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid);
+            for (String userUuid : fileSystemEntriesShareRequestDTO.usersUuids()) {
+                userService.updateShareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid, fileSystemEntriesShareRequestDTO.action());
             }
         }
 
