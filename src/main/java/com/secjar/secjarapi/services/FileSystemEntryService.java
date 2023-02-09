@@ -34,7 +34,7 @@ public class FileSystemEntryService {
     public void saveFile(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
         Set<String> takenFileNames = user.getFileSystemEntries().stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
 
-        fileSystemEntryInfo.setName(getNotTakenFileName(file.getOriginalFilename(), takenFileNames));
+        fileSystemEntryInfo.setName(getNotTakenFileName(FilenameUtils.removeExtension(file.getOriginalFilename()), takenFileNames));
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
 
@@ -177,15 +177,14 @@ public class FileSystemEntryService {
     }
 
     private String getNotTakenFileName(String fileName, Set<String> takenFileNames) {
-        String fileExtension = FilenameUtils.getExtension(fileName);
-        String fileNameWithoutExtension = FilenameUtils.removeExtension(fileName);
+        String newFileName = fileName;
 
         int i = 1;
-        while (takenFileNames.contains(fileNameWithoutExtension + "." + fileExtension)) {
-            fileNameWithoutExtension = FilenameUtils.removeExtension(fileName).concat("-" + i);
+        while (takenFileNames.contains(newFileName)) {
+            newFileName = fileName.concat("-" + i);
             i++;
         }
 
-        return fileNameWithoutExtension + "." + fileExtension;
+        return newFileName;
     }
 }
