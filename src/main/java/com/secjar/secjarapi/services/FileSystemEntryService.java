@@ -24,11 +24,13 @@ public class FileSystemEntryService {
     private final FileSystemEntryInfoService fileSystemEntryInfoService;
     private final FileService fileService;
     private final HsmService hsmService;
+    private final UserService userService;
 
-    public FileSystemEntryService(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, HsmService hsmService) {
+    public FileSystemEntryService(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, HsmService hsmService, UserService userService) {
         this.fileSystemEntryInfoService = fileSystemEntryInfoService;
         this.fileService = fileService;
         this.hsmService = hsmService;
+        this.userService = userService;
     }
 
     public void saveFile(User user, FileSystemEntryInfo fileSystemEntryInfo, MultipartFile file) {
@@ -168,6 +170,23 @@ public class FileSystemEntryService {
         fileSystemEntryInfoService.saveFileSystemEntryInfo(copiedFileInfo);
 
         return fileInfo;
+    }
+    public void updateShareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid, ShareActionsEnum shareAction) {
+        User user = userService.getUserByUuid(userUuid);
+
+        if (shareAction == ShareActionsEnum.START_SHARE) {
+            fileSystemEntryInfo.getAuthorizedUsers().add(user);
+        } else if (shareAction == ShareActionsEnum.STOP_SHARE) {
+            fileSystemEntryInfo.getAuthorizedUsers().remove(user);
+        }
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+
+        if (fileSystemEntryInfo.getContentType().equals("directory")) {
+            for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
+                updateShareFileSystemEntryWithUser(childFileSystemEntry, userUuid, shareAction);
+            }
+        }
     }
 
     private String getNotTakenFileName(String fileName, Set<String> takenFileNames) {

@@ -8,6 +8,7 @@ import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.SharedFileSystemEntriesStructureResponseDTO;
+import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.*;
@@ -225,11 +226,15 @@ public class FileSystemEntryController {
 
         for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
             for (String userUuid : fileSystemEntriesShareRequestDTO.usersUuids()) {
-                userService.updateShareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid, fileSystemEntriesShareRequestDTO.action());
+                fileSystemEntryService.updateShareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid, fileSystemEntriesShareRequestDTO.action());
             }
         }
 
-        return ResponseEntity.ok(new MessageResponseDTO("Files shared"));
+        if (fileSystemEntriesShareRequestDTO.action() == ShareActionsEnum.START_SHARE) {
+            return ResponseEntity.ok(new MessageResponseDTO("Files shared"));
+        } else {
+            return ResponseEntity.ok(new MessageResponseDTO("Files unshared"));
+        }
     }
 
     private User getUserFromPrincipal(Jwt principal) {

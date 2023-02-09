@@ -56,12 +56,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<FileSystemEntryInfo> fileSystemEntries = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "shared_files",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "file_id")
-    )
+    @ManyToMany(mappedBy = "authorizedUsers")
     private Set<FileSystemEntryInfo> sharedFileSystemEntries = new HashSet<>();
 
     public User(String uuid, String username, String password, String email, List<UserRole> roles) {

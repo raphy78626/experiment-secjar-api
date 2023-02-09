@@ -24,7 +24,6 @@ public class FileSystemEntryInfo {
     private String uuid;
 
     @Setter
-    @Column(unique = true)
     private String name;
     private String contentType;
     private long size;
@@ -51,7 +50,12 @@ public class FileSystemEntryInfo {
     private User user;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "sharedFileSystemEntries")
+    @ManyToMany
+    @JoinTable(
+            name = "shared_files",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id")
+    )
     private Set<User> authorizedUsers = new HashSet<>();
 
     public FileSystemEntryInfo(String uuid, String name, String contentType, long size, User user) {
@@ -60,6 +64,7 @@ public class FileSystemEntryInfo {
         this.contentType = contentType;
         this.size = size;
         this.user = user;
+        this.authorizedUsers.add(user);
     }
 
     public FileSystemEntryInfo(String uuid, String name, String contentType, long size, FileSystemEntryInfo parent, User user) {
@@ -69,5 +74,6 @@ public class FileSystemEntryInfo {
         this.size = size;
         this.parent = parent;
         this.user = user;
+        this.authorizedUsers.add(user);
     }
 }

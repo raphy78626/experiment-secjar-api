@@ -176,22 +176,4 @@ public class UserService {
 
         return user.getRoles().contains(adminRole);
     }
-
-    public void updateShareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid, ShareActionsEnum shareAction) {
-        User user = getUserByUuid(userUuid);
-
-        if (shareAction == ShareActionsEnum.START_SHARE) {
-            user.getSharedFileSystemEntries().add(fileSystemEntryInfo);
-        } else if (shareAction == ShareActionsEnum.STOP_SHARE) {
-            user.getSharedFileSystemEntries().remove(fileSystemEntryInfo);
-        }
-
-        saveUser(user);
-
-        if (fileSystemEntryInfo.getContentType().equals("directory")) {
-            for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
-                updateShareFileSystemEntryWithUser(childFileSystemEntry, userUuid, shareAction);
-            }
-        }
-    }
 }
