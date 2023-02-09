@@ -2,6 +2,7 @@ package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
+import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import org.apache.commons.io.FilenameUtils;
@@ -101,6 +102,14 @@ public class FileSystemEntryService {
             }
         }
 
+        if (fileSystemEntryPatchRequestDTO.name() != null && !fileSystemEntryPatchRequestDTO.name().isBlank()) {
+            if (fileSystemEntryInfo.getContentType().equals("directory")) {
+                fileSystemEntryInfo.setName(getNotTakenDirectoryName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getUser()));
+            } else {
+                fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getUser()));
+            }
+        }
+
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
     }
 
@@ -155,9 +164,7 @@ public class FileSystemEntryService {
 
     public FileSystemEntryInfo createFileCopy(FileSystemEntryInfo fileInfo) {
 
-        Set<String> takenFileNames = fileInfo.getUser().getFileSystemEntries().stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
-
-        String copiedFileName = getNotTakenFileName(fileInfo.getName(), takenFileNames);
+        String copiedFileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getUser());
 
         FileSystemEntryInfo copiedFileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), copiedFileName, fileInfo.getContentType(), fileInfo.getSize(), fileInfo.getUser());
 
@@ -167,6 +174,7 @@ public class FileSystemEntryService {
 
         return fileInfo;
     }
+
     public void updateShareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid, ShareActionsEnum shareAction) {
         User user = userService.getUserByUuid(userUuid);
 
