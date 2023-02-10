@@ -61,6 +61,11 @@ public class FileSystemEntryService {
 
         fileSystemEntry.setParent(targetFileSystemEntry);
 
+        fileSystemEntry.getAuthorizedUsers().clear();
+        for (User authorizeUser : targetFileSystemEntry.getAuthorizedUsers()) {
+            updateShareFileSystemEntryWithUser(fileSystemEntry, authorizeUser.getUuid(), ShareActionsEnum.START_SHARE);
+        }
+
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntry);
     }
 
@@ -204,18 +209,5 @@ public class FileSystemEntryService {
         }
 
         return newName;
-    }
-
-    private String getNotTakenDirectoryName(String directoryName, User user) {
-        Set<String> takenDirectoryNames = user.getFileSystemEntries().stream().filter(fileSystemEntryInfo -> fileSystemEntryInfo.getContentType().equals("directory")).map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
-        String newDirectoryName = directoryName;
-
-        int i = 1;
-        while (takenDirectoryNames.contains(newDirectoryName)) {
-            newDirectoryName = directoryName.concat("-" + i);
-            i++;
-        }
-
-        return newDirectoryName;
     }
 }
