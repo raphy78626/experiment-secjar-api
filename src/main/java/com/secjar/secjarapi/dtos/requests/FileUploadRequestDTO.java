@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.dtos.requests;
 
+import lombok.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
-public record FileUploadRequestDTO(MultipartFile file, String parentDirectoryUuid) {
+public record FileUploadRequestDTO(@NonNull MultipartFile file, String parentDirectoryUuid) {
 }

@@ -17,16 +17,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/fileSystemEntries")
@@ -37,13 +35,15 @@ public class FileSystemEntryController {
     private final UserService userService;
     private final HsmService hsmService;
     private final FileSystemEntryService fileSystemEntryService;
+    private final DiskInfoService diskInfoService;
 
-    public FileSystemEntryController(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, UserService userService, HsmService hsmService, FileSystemEntryService fileSystemEntryService) {
+    public FileSystemEntryController(FileSystemEntryInfoService fileSystemEntryInfoService, FileService fileService, UserService userService, HsmService hsmService, FileSystemEntryService fileSystemEntryService, DiskInfoService diskInfoService) {
         this.fileSystemEntryInfoService = fileSystemEntryInfoService;
         this.fileService = fileService;
         this.userService = userService;
         this.hsmService = hsmService;
         this.fileSystemEntryService = fileSystemEntryService;
+        this.diskInfoService = diskInfoService;
     }
 
     @GetMapping("/info")
@@ -104,6 +104,10 @@ public class FileSystemEntryController {
     public ResponseEntity<MessageResponseDTO> uploadFile(@ModelAttribute FileUploadRequestDTO fileUploadDTO, @AuthenticationPrincipal Jwt principal) {
 
         User user = getUserFromPrincipal(principal);
+
+        if(diskInfoService.getDisallowedContentTypes().contains(MimeTypeUtils.parseMimeType(Objects.requireNonNull(fileUploadDTO.file().getContentType())))) {
+            return ResponseEntity.status(400).body(new MessageResponseDTO("File content type is not allowed"));
+        }
 
         MultipartFile multipartFile = fileUploadDTO.file();
 
