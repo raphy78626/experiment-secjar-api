@@ -26,7 +26,7 @@ public class FileService {
     }
 
     public void saveAttachment(MultipartFile multipartFile, FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForEncryption) {
-        Path filePath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), fileSystemEntryInfo.getName());
+        Path filePath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid());
         File file = new File(filePath.toUri());
 
         try {
@@ -59,7 +59,7 @@ public class FileService {
 
     public byte[] getFileBytes(FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForDecryption) {
 
-        Path fileDirectoryPath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid(), fileSystemEntryInfo.getName());
+        Path fileDirectoryPath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid());
 
         File encryptedFile = new File(fileDirectoryPath.toUri());
         byte[] fileBytes;
@@ -73,7 +73,7 @@ public class FileService {
     }
 
     public void createFileCopy(FileSystemEntryInfo originalFileInfo, FileSystemEntryInfo copiedFileInfo) {
-        Path filePath = Path.of(fileSavePath, originalFileInfo.getUuid(), originalFileInfo.getName());
+        Path filePath = Path.of(fileSavePath, originalFileInfo.getUuid());
         File file = new File(filePath.toUri());
 
         byte[] fileBytes;
@@ -84,7 +84,7 @@ public class FileService {
         }
 
 
-        filePath = Path.of(fileSavePath, copiedFileInfo.getUuid(), originalFileInfo.getName());
+        filePath = Path.of(fileSavePath, copiedFileInfo.getUuid());
         file = new File(filePath.toUri());
 
         try {

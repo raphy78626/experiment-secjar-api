@@ -5,7 +5,7 @@ import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
-import org.apache.commons.io.FilenameUtils;
+import jodd.net.MimeTypes;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +35,7 @@ public class FileSystemEntryService {
     }
 
     public void saveFile(User user, FileSystemEntryInfo fileInfo, MultipartFile file) {
-        String fileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getUser());
+        String fileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getContentType(), fileInfo.getUser());
 
         fileInfo.setName(fileName);
 
@@ -46,7 +46,7 @@ public class FileSystemEntryService {
     }
 
     public void saveDirectory(FileSystemEntryInfo directoryInfo) {
-        String directoryName = getNotTakenDirectoryName(directoryInfo.getName(), directoryInfo.getUser());
+        String directoryName = getNotTakenFileName(directoryInfo.getName(), directoryInfo.getContentType(), directoryInfo.getUser());
 
         directoryInfo.setName(directoryName);
 
@@ -103,11 +103,7 @@ public class FileSystemEntryService {
         }
 
         if (fileSystemEntryPatchRequestDTO.name() != null && !fileSystemEntryPatchRequestDTO.name().isBlank()) {
-            if (fileSystemEntryInfo.getContentType().equals("directory")) {
-                fileSystemEntryInfo.setName(getNotTakenDirectoryName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getUser()));
-            } else {
-                fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getUser()));
-            }
+            fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getContentType(), fileSystemEntryInfo.getUser()));
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
@@ -147,7 +143,8 @@ public class FileSystemEntryService {
                 byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
 
                 try {
-                    zipOutputStream.putNextEntry(new ZipEntry(path + fileSystemEntryInfo.getName()));
+                    String fileExtension = MimeTypes.findExtensionsByMimeTypes(fileSystemEntryInfo.getContentType(), false)[0];
+                    zipOutputStream.putNextEntry(new ZipEntry(path + fileSystemEntryInfo.getName() + "." + fileExtension));
 
                     zipOutputStream.write(fileBytes, 0, fileBytes.length);
 
@@ -164,7 +161,7 @@ public class FileSystemEntryService {
 
     public FileSystemEntryInfo createFileCopy(FileSystemEntryInfo fileInfo) {
 
-        String copiedFileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getUser());
+        String copiedFileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getContentType(), fileInfo.getUser());
 
         FileSystemEntryInfo copiedFileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), copiedFileName, fileInfo.getContentType(), fileInfo.getSize(), fileInfo.getUser());
 
@@ -193,19 +190,20 @@ public class FileSystemEntryService {
         }
     }
 
-    private String getNotTakenFileName(String fileName, User user) {
-        Set<String> takenFileNames = user.getFileSystemEntries().stream().filter(fileSystemEntryInfo -> !fileSystemEntryInfo.getContentType().equals("directory")).map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+    private String getNotTakenFileName(String fileName, String contentType, User user) {
 
-        String fileExtension = FilenameUtils.getExtension(fileName);
-        String fileNameWithoutExtension = FilenameUtils.removeExtension(fileName);
+        List<FileSystemEntryInfo> filesWithTheSameContentType = fileSystemEntryInfoService.getAllByContentType(user, contentType);
+        Set<String> takenNames = filesWithTheSameContentType.stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
+
+        String newName = fileName;
 
         int i = 1;
-        while (takenFileNames.contains(fileNameWithoutExtension + "." + fileExtension)) {
-            fileNameWithoutExtension = FilenameUtils.removeExtension(fileName).concat("-" + i);
+        while (takenNames.contains(newName)) {
+            newName = fileName.concat("-" + i);
             i++;
         }
 
-        return fileNameWithoutExtension + "." + fileExtension;
+        return newName;
     }
 
     private String getNotTakenDirectoryName(String directoryName, User user) {
