@@ -24,7 +24,7 @@ public class FileSystemEntryInfoService {
 
     public void saveFileSystemEntryInfo(FileSystemEntryInfo fileSystemEntryInfo) {
         if (fileSystemEntryInfo.getSize() + fileSystemEntryInfo.getUser().getCurrentDiskSpace() > fileSystemEntryInfo.getUser().getAllowedDiskSpace()) {
-            throw new IllegalStateException(String.format("Can save file with uuid %s. Allowed disc size exceeded", fileSystemEntryInfo.getUuid()));
+            throw new IllegalStateException(String.format("Can't save file with uuid %s. Allowed disc size exceeded", fileSystemEntryInfo.getUuid()));
         }
 
         userService.increaseTakenDiskSpace(fileSystemEntryInfo.getUser().getUuid(), fileSystemEntryInfo.getSize());
