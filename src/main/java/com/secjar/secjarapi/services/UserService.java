@@ -3,9 +3,7 @@ package com.secjar.secjarapi.services;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
-import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.enums.UserRolesEnum;
-import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
@@ -119,6 +117,20 @@ public class UserService {
             user.setDesiredSessionTime(userPatchRequestDTO.desiredSessionTime());
         }
 
+        if (userPatchRequestDTO.allowedDiskSpace() != null) {
+            changeAllowedDiskSpace(user, userPatchRequestDTO.allowedDiskSpace());
+        }
+
+        saveUser(user);
+    }
+
+    private void changeAllowedDiskSpace(User user, long allowedDiskSpace) {
+        if (allowedDiskSpace < user.getCurrentDiskSpace()) {
+            throw new IllegalArgumentException("New allowed disk space is less than currently occupied space");
+        }
+
+        user.setAllowedDiskSpace(allowedDiskSpace);
+
         saveUser(user);
     }
 
@@ -141,7 +153,6 @@ public class UserService {
                 .digits(6)
                 .period(30)
                 .build();
-
 
         byte[] imageData;
 
