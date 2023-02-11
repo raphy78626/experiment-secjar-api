@@ -83,6 +83,12 @@ public class FileSystemEntryService {
         fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileSystemEntryUuid);
     }
 
+    public void deleteAllUserFileSystemEntries(User user) {
+        for(FileSystemEntryInfo fileSystemEntryInfo : user.getFileSystemEntries()) {
+            deleteFileSystemEntry(fileSystemEntryInfo.getUuid());
+        }
+    }
+
     public void removeDeleteDate(String fileSystemEntryInfoUuid) {
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryInfoUuid);
 

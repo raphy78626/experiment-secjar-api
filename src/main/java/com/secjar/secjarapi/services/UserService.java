@@ -170,4 +170,10 @@ public class UserService {
 
         return user.getRoles().contains(adminRole);
     }
+
+    public void deleteUserByUuid(String userToDeleteUuid) {
+        User user = getUserByUuid(userToDeleteUuid);
+
+        userRepository.delete(user);
+    }
 }

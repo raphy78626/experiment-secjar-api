@@ -6,6 +6,7 @@ import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.UserInfoResponseDTO;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
+import com.secjar.secjarapi.services.FileSystemEntryService;
 import com.secjar.secjarapi.services.PasswordResetService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,12 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordResetService passwordResetService;
+    private final FileSystemEntryService fileSystemEntryService;
 
-    public UserController(UserService userService, PasswordResetService passwordResetService) {
+    public UserController(UserService userService, PasswordResetService passwordResetService, FileSystemEntryService fileSystemEntryService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
+        this.fileSystemEntryService = fileSystemEntryService;
     }
 
     @GetMapping("/{uuid}/info")
@@ -108,6 +111,20 @@ public class UserController {
         passwordResetService.confirmPasswordResetToken(passwordResetConfirmRequestDTO);
 
         return ResponseEntity.ok(new MessageResponseDTO("Password changed"));
+    }
+
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<MessageResponseDTO> deleteUser(@PathVariable("uuid") String userToDeleteUuid, @AuthenticationPrincipal Jwt principal) {
+        User user = getUserFromPrincipal(principal);
+
+        if (!user.getUuid().equals(userToDeleteUuid) && !userService.isUserAdmin(user.getUuid())) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You can't delete this user"));
+        }
+
+        fileSystemEntryService.deleteAllUserFileSystemEntries(user);
+        userService.deleteUserByUuid(userToDeleteUuid);
+
+        return ResponseEntity.ok(new MessageResponseDTO("User deleted"));
     }
 
     private User getUserFromPrincipal(Jwt principal) {
