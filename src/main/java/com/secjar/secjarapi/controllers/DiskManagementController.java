@@ -1,12 +1,11 @@
 package com.secjar.secjarapi.controllers;
 
+import com.secjar.secjarapi.dtos.requests.DiskInfoPatchRequestDTO;
 import com.secjar.secjarapi.dtos.responses.DiskInfoResponseDTO;
 import com.secjar.secjarapi.services.DiskInfoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/diskInfo")
@@ -20,10 +19,17 @@ public class DiskManagementController {
     }
 
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<DiskInfoResponseDTO> getDiskInfo() {
         DiskInfoResponseDTO diskInfoResponseDTO = new DiskInfoResponseDTO(diskInfoService.getDisallowedContentTypes());
 
         return ResponseEntity.ok(diskInfoResponseDTO);
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> patchDiskInfo(@RequestBody DiskInfoPatchRequestDTO diskInfoPatchRequestDTO) {
+        diskInfoService.patchDiskInfo(diskInfoPatchRequestDTO);
+
+        return ResponseEntity.status(204).build();
     }
 }
