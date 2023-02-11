@@ -26,6 +26,7 @@ public class User {
     private String password;
     private String email;
 
+    @Setter
     private Boolean verified = false;
 
     @Setter

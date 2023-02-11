@@ -73,8 +73,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public int enableUser(String email) {
-        return userRepository.enableAppUser(email);
+    public void enableUser(User user) {
+        user.setVerified(true);
+        saveUser(user);
     }
 
     public void addCryptoKeyToUser(long id) {
