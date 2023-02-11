@@ -114,10 +114,6 @@ public class UserService {
             user.setFileDeletionDelay(userPatchRequestDTO.fileDeletionDelay());
         }
 
-        if (userPatchRequestDTO.desiredSessionTime() != null) {
-            user.setDesiredSessionTime(userPatchRequestDTO.desiredSessionTime());
-        }
-
         if (userPatchRequestDTO.allowedDiskSpace() != null) {
             changeAllowedDiskSpace(user, userPatchRequestDTO.allowedDiskSpace());
         }

@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 public class JwtTokenService {
 
     private final JwtEncoder jwtEncoder;
+    private final DiskInfoService diskInfoService;
 
-    public JwtTokenService(JwtEncoder encoder) {
+    public JwtTokenService(JwtEncoder encoder, DiskInfoService diskInfoService) {
         this.jwtEncoder = encoder;
+        this.diskInfoService = diskInfoService;
     }
 
     public String generateToken(Authentication authentication) {
@@ -33,7 +35,7 @@ public class JwtTokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(user.getDesiredSessionTime(), ChronoUnit.MILLIS))
+                .expiresAt(now.plus(diskInfoService.getMaxUserSessionTime(), ChronoUnit.MILLIS))
                 .subject(authentication.getName())
                 .claim("scope", scope)
                 .claim("userUuid", user.getUuid())

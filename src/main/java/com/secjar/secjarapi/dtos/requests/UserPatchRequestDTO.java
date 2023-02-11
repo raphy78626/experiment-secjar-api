@@ -2,7 +2,7 @@ package com.secjar.secjarapi.dtos.requests;
 
 import com.secjar.secjarapi.constrains.UserConstrains;
 
-public record UserPatchRequestDTO(Long fileDeletionDelay, Long desiredSessionTime, Long allowedDiskSpace) implements UserConstrains {
+public record UserPatchRequestDTO(Long fileDeletionDelay, Long allowedDiskSpace) implements UserConstrains {
 
     public UserPatchRequestDTO {
         if (fileDeletionDelay != null) {
@@ -14,17 +14,8 @@ public record UserPatchRequestDTO(Long fileDeletionDelay, Long desiredSessionTim
             }
         }
 
-        if(desiredSessionTime != null) {
-            if(desiredSessionTime < MIN_SESSION_TIME) {
-                throw new IllegalArgumentException(String.format("Desired session time cannot be smaller than %d ms", MIN_SESSION_TIME));
-            }
-            if(desiredSessionTime > MAX_SESSION_TIME) {
-                throw new IllegalArgumentException(String.format("Desired session time cannot be larger than %d ms", MAX_SESSION_TIME));
-            }
-        }
-
-        if(allowedDiskSpace != null) {
-            if(allowedDiskSpace < 0) {
+        if (allowedDiskSpace != null) {
+            if (allowedDiskSpace < 0) {
                 throw new IllegalArgumentException("Allowed disk space cannot be negative");
             }
         }

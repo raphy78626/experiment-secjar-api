@@ -20,4 +20,7 @@ public class DiskInfo {
 
     @Setter
     private Set<String> disallowedContentTypes = new HashSet<>();
+
+    @Setter
+    private long maxUserSessionTime = 3_600_000L;
 }

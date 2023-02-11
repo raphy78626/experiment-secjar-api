@@ -21,7 +21,7 @@ public class DiskManagementController {
 
     @GetMapping
     public ResponseEntity<DiskInfoResponseDTO> getDiskInfo() {
-        DiskInfoResponseDTO diskInfoResponseDTO = new DiskInfoResponseDTO(diskInfoService.getDisallowedContentTypes());
+        DiskInfoResponseDTO diskInfoResponseDTO = new DiskInfoResponseDTO(diskInfoService.getMaxUserSessionTime(), diskInfoService.getDisallowedContentTypes());
 
         return ResponseEntity.ok(diskInfoResponseDTO);
     }

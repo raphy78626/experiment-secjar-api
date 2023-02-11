@@ -11,29 +11,31 @@ import java.util.Set;
 public class DiskInfoService {
 
     private final DiskInfoRepository diskInfoRepository;
-    private final long diskId;
+    private final DiskInfo diskInfo;
 
     public DiskInfoService(DiskInfoRepository diskInfoRepository) {
         this.diskInfoRepository = diskInfoRepository;
 
-        DiskInfo diskInfo = new DiskInfo();
-        diskInfoRepository.save(diskInfo);
-        diskId = diskInfo.getId();
+        diskInfo = diskInfoRepository.findById(1L).orElse(new DiskInfo());
     }
 
     public Set<String> getDisallowedContentTypes() {
-        DiskInfo diskInfo = diskInfoRepository.findById(diskId).orElseThrow(() -> new IllegalStateException("Disk info doesn't exist"));
-
         return diskInfo.getDisallowedContentTypes();
     }
 
     public void patchDiskInfo(DiskInfoPatchRequestDTO diskInfoPatchRequestDTO) {
-        DiskInfo diskInfo = diskInfoRepository.findById(diskId).orElseThrow(() -> new IllegalStateException("Disk info doesn't exist"));
-
         if (diskInfoPatchRequestDTO.disallowedMimeTypes() != null) {
             diskInfo.setDisallowedContentTypes(diskInfoPatchRequestDTO.disallowedMimeTypes());
         }
 
+        if (diskInfoPatchRequestDTO.maxUserSessionTime() != null) {
+            diskInfo.setMaxUserSessionTime(diskInfoPatchRequestDTO.maxUserSessionTime());
+        }
+
         diskInfoRepository.save(diskInfo);
+    }
+
+    public long getMaxUserSessionTime() {
+        return diskInfo.getMaxUserSessionTime();
     }
 }
