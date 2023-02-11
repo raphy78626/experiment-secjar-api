@@ -1,43 +1,56 @@
 package com.secjar.secjarapi.services;
 
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
+import com.secjar.secjarapi.enums.UserRolesEnum;
+import com.secjar.secjarapi.models.AccountCreationCredentials;
 import com.secjar.secjarapi.models.ConfirmationToken;
 import com.secjar.secjarapi.models.User;
-import org.apache.commons.validator.routines.EmailValidator;
+import com.secjar.secjarapi.models.UserRole;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class RegistrationService {
 
+    @Value("${accountCreation.emailConfirmationSiteAddress}")
+    private String emailConfirmationSite;
+
     private final UserService userService;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSenderService emailSenderService;
+    private final AccountCreationCredentialsService accountCreationCredentialsService;
+    private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
-    public RegistrationService(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService) {
+    public RegistrationService(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService, AccountCreationCredentialsService accountCreationCredentialsService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.confirmationTokenService = confirmationTokenService;
         this.emailSenderService = emailSenderService;
+        this.accountCreationCredentialsService = accountCreationCredentialsService;
+        this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public String register(RegistrationRequestDTO registrationRequestDTO) {
-        boolean isValidEmail = EmailValidator.getInstance().isValid(registrationRequestDTO.email());
+    public void register(String accountCreationToken, RegistrationRequestDTO registrationRequestDTO) {
 
-        if (!isValidEmail) {
-            throw new IllegalStateException("email not valid");
-        }
+        accountCreationCredentialsService.setUsedAt(accountCreationToken);
 
-        if (userService.checkIfUserWithEmailExist(registrationRequestDTO.email())) {
-            throw new IllegalStateException("email already taken");
-        }
+        AccountCreationCredentials accountCreationCredentials = accountCreationCredentialsService.getTokenByToken(accountCreationToken);
 
-        if (userService.checkIfUserWithUsernameExist(registrationRequestDTO.username())) {
-            throw new IllegalStateException("username already taken");
-        }
+        UserRole userRole = roleService.getRole(UserRolesEnum.ROLE_USER);
 
-        User user = userService.createUserFromRegistrationRequest(registrationRequestDTO);
+        User user = new User(
+                UUID.randomUUID().toString(),
+                accountCreationCredentials.getUsername(),
+                passwordEncoder.encode(registrationRequestDTO.password()),
+                accountCreationCredentials.getEmail(),
+                List.of(userRole));
+
         userService.saveUser(user);
 
         ConfirmationToken confirmationToken = new ConfirmationToken(
@@ -49,9 +62,7 @@ public class RegistrationService {
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        emailSenderService.sendSimpleMail(user.getEmail(), "Confirm your account", "http://localhost:8080/register/confirm?token=" + confirmationToken.getToken());
-
-        return user.getUuid();
+        emailSenderService.sendSimpleMail(user.getEmail(), "Confirm your account", emailConfirmationSite + "?token=" + confirmationToken.getToken());
     }
 
     public void confirmRegistrationToken(String token) {

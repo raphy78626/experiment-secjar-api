@@ -1,7 +1,6 @@
 package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
-import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
@@ -15,9 +14,6 @@ import dev.samstevens.totp.qr.ZxingPngQrGenerator;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
@@ -57,16 +53,6 @@ public class UserService {
 
     public boolean checkIfUserWithUsernameExist(String username) {
         return userRepository.findByEmail(username).isPresent();
-    }
-
-    public User createUserFromRegistrationRequest(RegistrationRequestDTO registrationRequestDTO) {
-        return new User(
-                UUID.randomUUID().toString(),
-                registrationRequestDTO.username(),
-                passwordEncoder.encode(registrationRequestDTO.password()),
-                registrationRequestDTO.email(),
-                List.of(roleService.getRole(UserRolesEnum.ROLE_USER))
-        );
     }
 
     public void saveUser(User user) {
