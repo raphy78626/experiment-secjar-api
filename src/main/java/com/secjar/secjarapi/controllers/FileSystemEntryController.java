@@ -12,6 +12,7 @@ import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.*;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -122,9 +123,9 @@ public class FileSystemEntryController {
                 return ResponseEntity.status(400).body(new MessageResponseDTO("Parent is not a directory"));
             }
 
-            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), multipartFile.getSize(), parent, user);
+            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), FilenameUtils.removeExtension(multipartFile.getOriginalFilename()), multipartFile.getContentType(), multipartFile.getSize(), parent, user);
         } else {
-            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), multipartFile.getOriginalFilename(), multipartFile.getContentType(), multipartFile.getSize(), user);
+            fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), FilenameUtils.removeExtension(multipartFile.getOriginalFilename()), multipartFile.getContentType(), multipartFile.getSize(), user);
         }
 
         fileSystemEntryService.saveFile(user, fileSystemEntryInfo, fileUploadDTO.file());
