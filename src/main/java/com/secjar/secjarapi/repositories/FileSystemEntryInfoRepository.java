@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface FileSystemEntryInfoRepository extends JpaRepository<FileSystemEntryInfo, Long> {
     Optional<FileSystemEntryInfo> findByUuid(String fileSystemEntryInfoUuid);
 
+    Optional<FileSystemEntryInfo> findByName(String fileSystemEntryName);
+
     void deleteByUuid(String fileSystemEntryInfoUuid);
 
     List<Optional<FileSystemEntryInfo>> findAllByDeleteDateLessThan(Timestamp timestamp);

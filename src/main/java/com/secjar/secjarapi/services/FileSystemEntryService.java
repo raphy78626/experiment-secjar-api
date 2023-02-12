@@ -225,4 +225,10 @@ public class FileSystemEntryService {
 
         return newName;
     }
+
+    public void deleteFileSystemEntryByName(String name) {
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByName(name);
+
+        deleteFileSystemEntry(fileSystemEntryInfo.getUuid());
+    }
 }

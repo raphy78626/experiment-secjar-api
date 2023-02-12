@@ -41,6 +41,10 @@ public class FileSystemEntryInfoService {
         return fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with uuid: %s does not exist", fileSystemEntryInfoUuid)));
     }
 
+    public FileSystemEntryInfo getFileSystemEntryInfoByName(String fileSystemEntryName) {
+        return fileSystemEntryInfoRepository.findByName(fileSystemEntryName).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with name: %s does not exist", fileSystemEntryName)));
+    }
+
     public List<FileSystemEntryInfo> getAllWithDeleteDateLessThan(Timestamp timestamp) {
         List<Optional<FileSystemEntryInfo>> filesToDelete = fileSystemEntryInfoRepository.findAllByDeleteDateLessThan(timestamp);
 

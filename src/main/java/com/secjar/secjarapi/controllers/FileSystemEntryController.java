@@ -128,6 +128,10 @@ public class FileSystemEntryController {
             fileSystemEntryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), FilenameUtils.removeExtension(multipartFile.getOriginalFilename()), multipartFile.getContentType(), multipartFile.getSize(), user);
         }
 
+        if (fileUploadDTO.replace()) {
+            fileSystemEntryService.deleteFileSystemEntryByName(fileSystemEntryInfo.getName());
+        }
+
         fileSystemEntryService.saveFile(user, fileSystemEntryInfo, fileUploadDTO.file());
 
         return ResponseEntity.created(URI.create(String.format("/file/%s", fileSystemEntryInfo.getUuid()))).body(new MessageResponseDTO("File created"));
