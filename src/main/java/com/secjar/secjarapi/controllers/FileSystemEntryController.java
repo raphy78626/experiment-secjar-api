@@ -142,7 +142,19 @@ public class FileSystemEntryController {
 
         User user = getUserFromPrincipal(principal);
 
-        FileSystemEntryInfo directoryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", 0, user);
+        FileSystemEntryInfo directoryInfo;
+
+        if (directoryCreationDTO.parentDirectoryUuid() != null) {
+            FileSystemEntryInfo parent = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(directoryCreationDTO.parentDirectoryUuid());
+
+            if (!parent.getContentType().equals("directory")) {
+                return ResponseEntity.status(400).body(new MessageResponseDTO("Parent is not a directory"));
+            }
+
+            directoryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", 0, parent, user);
+        } else {
+            directoryInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), directoryCreationDTO.directoryName(), "directory", 0, user);
+        }
 
         fileSystemEntryService.saveDirectory(directoryInfo);
 
