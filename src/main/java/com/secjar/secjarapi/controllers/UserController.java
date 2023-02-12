@@ -39,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok().body(new UserInfoResponseDTO(
                 user.getUsername(),
                 user.getEmail(),
-                user.getVerified(),
+                user.isVerified(),
                 user.isUsingMFA(),
                 user.getFileDeletionDelay(),
                 user.getCurrentDiskSpace(),

@@ -41,6 +41,10 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
             }
         }
 
+        if (!user.isVerified()) {
+            throw new RuntimeException("Email is not verified");
+        }
+
         Authentication result = super.authenticate(authentication);
         return new UsernamePasswordAuthenticationToken(user, result.getCredentials(), result.getAuthorities());
     }

@@ -27,7 +27,7 @@ public class User {
     private String email;
 
     @Setter
-    private Boolean verified = false;
+    private boolean isVerified = false;
 
     @Setter
     private byte[] cryptographicKeyIndex;
