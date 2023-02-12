@@ -60,4 +60,8 @@ public class FileSystemEntryInfoService {
 
         return files.stream().flatMap(Optional::stream).collect(Collectors.toList());
     }
+
+    public boolean doesFileSystemEntryInfoExists(String fileSystemEntryInfoUuid) {
+        return fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).isPresent();
+    }
 }

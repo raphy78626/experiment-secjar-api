@@ -105,15 +105,20 @@ public class FileSystemEntryService {
         }
 
         if (fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {
+            if (fileSystemEntryPatchRequestDTO.name() == null) {
+                if (fileSystemEntryInfoService.doesFileSystemEntryInfoExists(fileSystemEntryPatchRequestDTO.parentDirectoryUuid())) {
+                    FileSystemEntryInfo parentDirectory = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
+                    fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryInfo.getName(), fileSystemEntryInfo.getContentType(), parentDirectory, fileSystemEntryInfo.getUser()));
+                } else {
+                    fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryInfo.getName(), fileSystemEntryInfo.getContentType(), null, fileSystemEntryInfo.getUser()));
+                }
+            }
+
             if (!fileSystemEntryPatchRequestDTO.parentDirectoryUuid().equals("")) {
                 FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
                 moveFileToDirectory(fileSystemEntryInfo, targetFileSystemEntry);
             } else {
                 fileSystemEntryInfo.setParent(null);
-            }
-
-            if(fileSystemEntryPatchRequestDTO.name() == null) {
-                fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryInfo.getName(), fileSystemEntryInfo.getContentType(), fileSystemEntryInfo.getParent(), fileSystemEntryInfo.getUser()));
             }
         }
 
