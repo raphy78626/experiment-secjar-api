@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -49,7 +49,7 @@ public class RegistrationService {
                 accountCreationCredentials.getUsername(),
                 passwordEncoder.encode(registrationRequestDTO.password()),
                 accountCreationCredentials.getEmail(),
-                List.of(userRole));
+                Set.of(userRole));
 
         userService.saveUser(user);
 

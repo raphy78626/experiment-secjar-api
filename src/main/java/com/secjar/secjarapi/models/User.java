@@ -50,7 +50,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private List<UserRole> roles;
+    private Set<UserRole> roles;
 
     @OneToMany(mappedBy = "user")
     private Set<FileSystemEntryInfo> fileSystemEntries = new HashSet<>();
@@ -58,7 +58,7 @@ public class User {
     @ManyToMany(mappedBy = "authorizedUsers")
     private Set<FileSystemEntryInfo> sharedFileSystemEntries = new HashSet<>();
 
-    public User(String uuid, String username, String password, String email, List<UserRole> roles) {
+    public User(String uuid, String username, String password, String email, Set<UserRole> roles) {
         this.uuid = uuid;
         this.username = username;
         this.password = password;

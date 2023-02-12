@@ -176,4 +176,17 @@ public class UserService {
 
         userRepository.delete(user);
     }
+
+    public void updateUserAdminRole(String userUuid, boolean updateIsUserAdmin) {
+        UserRole adminRole = roleService.getRole(UserRolesEnum.ROLE_ADMIN);
+        User user = getUserByUuid(userUuid);
+
+        if (updateIsUserAdmin) {
+            user.getRoles().add(adminRole);
+        } else {
+            user.getRoles().remove(adminRole);
+        }
+
+        saveUser(user);
+    }
 }

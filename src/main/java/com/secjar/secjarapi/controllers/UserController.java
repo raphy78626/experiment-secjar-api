@@ -10,6 +10,7 @@ import com.secjar.secjarapi.services.FileSystemEntryService;
 import com.secjar.secjarapi.services.PasswordResetService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +62,18 @@ public class UserController {
         userService.pathUser(userUuid, userPatchRequestDTO);
 
         return ResponseEntity.status(204).build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{uuid}/roles/admin")
+    public ResponseEntity<?> updateUserAdminRole(@PathVariable("uuid") String userUuid, @RequestBody AdminUpdateRequestDTO adminUpdateRequestDTO) {
+        userService.updateUserAdminRole(userUuid, adminUpdateRequestDTO.isUserAdmin());
+
+        if (adminUpdateRequestDTO.isUserAdmin()) {
+            return ResponseEntity.ok(new MessageResponseDTO(String.format("User %s is not an admin", userUuid)));
+        } else {
+            return ResponseEntity.ok(new MessageResponseDTO(String.format("User %s is no longer an admin", userUuid)));
+        }
     }
 
     @PostMapping("/{uuid}/2fa/update")
