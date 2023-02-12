@@ -154,7 +154,7 @@ public class FileSystemEntryService {
 
     private void ZippingDFSHelper(List<FileSystemEntryInfo> fileSystemEntryInfoChildren, ZipOutputStream zipOutputStream, CryptoServerCXI.Key keyForDecryption, String path) {
         for (FileSystemEntryInfo fileSystemEntryInfo : fileSystemEntryInfoChildren) {
-            if (fileSystemEntryInfo.getChildren().isEmpty()) {
+            if (!fileSystemEntryInfo.getContentType().equals("directory")) {
                 byte[] fileBytes = fileService.getFileBytes(fileSystemEntryInfo, keyForDecryption);
 
                 try {
