@@ -72,6 +72,6 @@ public class User {
     }
 
     public List<FileSystemEntryInfo> getSharedFileSystemEntriesStructure() {
-        return sharedFileSystemEntries.stream().filter(fileInfo -> fileInfo.getParent() == null).toList();
+        return sharedFileSystemEntries.stream().filter(fileInfo -> fileInfo.getUser() != this).filter(fileInfo -> fileInfo.getParent() == null).toList();
     }
 }
