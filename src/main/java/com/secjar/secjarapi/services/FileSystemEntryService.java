@@ -6,6 +6,7 @@ import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import jodd.net.MimeTypes;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,17 +54,22 @@ public class FileSystemEntryService {
         fileSystemEntryInfoService.saveFileSystemEntryInfo(directoryInfo);
     }
 
-    public void moveFileToDirectory(FileSystemEntryInfo fileSystemEntry, FileSystemEntryInfo targetFileSystemEntry) {
+    public void moveFileToDirectory(FileSystemEntryInfo fileSystemEntry, @Nullable FileSystemEntryInfo targetFileSystemEntry) {
 
-        if (!targetFileSystemEntry.getContentType().equals("directory")) {
+        if (targetFileSystemEntry != null && !targetFileSystemEntry.getContentType().equals("directory")) {
             throw new IllegalArgumentException("Target is not a directory");
         }
 
-        fileSystemEntry.setParent(targetFileSystemEntry);
+        if (targetFileSystemEntry != null) {
+            fileSystemEntry.setParent(targetFileSystemEntry);
 
-        fileSystemEntry.getAuthorizedUsers().clear();
-        for (User authorizeUser : targetFileSystemEntry.getAuthorizedUsers()) {
-            updateShareFileSystemEntryWithUser(fileSystemEntry, authorizeUser.getUuid(), ShareActionsEnum.START_SHARE);
+            fileSystemEntry.getAuthorizedUsers().clear();
+            for (User authorizeUser : targetFileSystemEntry.getAuthorizedUsers()) {
+                updateShareFileSystemEntryWithUser(fileSystemEntry, authorizeUser.getUuid(), ShareActionsEnum.START_SHARE);
+            }
+        } else {
+            fileSystemEntry.setParent(null);
+            fileSystemEntry.getAuthorizedUsers().clear();
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntry);
@@ -118,7 +124,7 @@ public class FileSystemEntryService {
                 FileSystemEntryInfo targetFileSystemEntry = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryPatchRequestDTO.parentDirectoryUuid());
                 moveFileToDirectory(fileSystemEntryInfo, targetFileSystemEntry);
             } else {
-                fileSystemEntryInfo.setParent(null);
+                moveFileToDirectory(fileSystemEntryInfo, null);
             }
         }
 
