@@ -35,7 +35,7 @@ public class FileSystemEntryService {
     }
 
     public void saveFile(User user, FileSystemEntryInfo fileInfo, MultipartFile file) {
-        String fileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getContentType(), fileInfo.getUser());
+        String fileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getContentType(), fileInfo.getParent(), fileInfo.getUser());
 
         fileInfo.setName(fileName);
 
@@ -46,7 +46,7 @@ public class FileSystemEntryService {
     }
 
     public void saveDirectory(FileSystemEntryInfo directoryInfo) {
-        String directoryName = getNotTakenFileName(directoryInfo.getName(), directoryInfo.getContentType(), directoryInfo.getUser());
+        String directoryName = getNotTakenFileName(directoryInfo.getName(), directoryInfo.getContentType(), directoryInfo.getParent(), directoryInfo.getUser());
 
         directoryInfo.setName(directoryName);
 
@@ -84,7 +84,7 @@ public class FileSystemEntryService {
     }
 
     public void deleteAllUserFileSystemEntries(User user) {
-        for(FileSystemEntryInfo fileSystemEntryInfo : user.getFileSystemEntries()) {
+        for (FileSystemEntryInfo fileSystemEntryInfo : user.getFileSystemEntries()) {
             deleteFileSystemEntry(fileSystemEntryInfo.getUuid());
         }
     }
@@ -111,10 +111,14 @@ public class FileSystemEntryService {
             } else {
                 fileSystemEntryInfo.setParent(null);
             }
+
+            if(fileSystemEntryPatchRequestDTO.name() == null) {
+                fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryInfo.getName(), fileSystemEntryInfo.getContentType(), fileSystemEntryInfo.getParent(), fileSystemEntryInfo.getUser()));
+            }
         }
 
         if (fileSystemEntryPatchRequestDTO.name() != null && !fileSystemEntryPatchRequestDTO.name().isBlank()) {
-            fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getContentType(), fileSystemEntryInfo.getUser()));
+            fileSystemEntryInfo.setName(getNotTakenFileName(fileSystemEntryPatchRequestDTO.name(), fileSystemEntryInfo.getContentType(), fileSystemEntryInfo.getParent(), fileSystemEntryInfo.getUser()));
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
@@ -172,7 +176,7 @@ public class FileSystemEntryService {
 
     public FileSystemEntryInfo createFileCopy(FileSystemEntryInfo fileInfo) {
 
-        String copiedFileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getContentType(), fileInfo.getUser());
+        String copiedFileName = getNotTakenFileName(fileInfo.getName(), fileInfo.getContentType(), fileInfo.getParent(), fileInfo.getUser());
 
         FileSystemEntryInfo copiedFileInfo = new FileSystemEntryInfo(UUID.randomUUID().toString(), copiedFileName, fileInfo.getContentType(), fileInfo.getSize(), fileInfo.getUser());
 
@@ -201,9 +205,9 @@ public class FileSystemEntryService {
         }
     }
 
-    private String getNotTakenFileName(String fileName, String contentType, User user) {
+    private String getNotTakenFileName(String fileName, String contentType, FileSystemEntryInfo parentDirectory, User user) {
 
-        List<FileSystemEntryInfo> filesWithTheSameContentType = fileSystemEntryInfoService.getAllByContentType(user, contentType);
+        List<FileSystemEntryInfo> filesWithTheSameContentType = fileSystemEntryInfoService.getAllByContentType(user, contentType).stream().filter(fileSystemEntryInfo -> fileSystemEntryInfo.getParent() == parentDirectory).toList();
         Set<String> takenNames = filesWithTheSameContentType.stream().map(FileSystemEntryInfo::getName).collect(Collectors.toSet());
 
         String newName = fileName;
