@@ -10,6 +10,7 @@ import com.secjar.secjarapi.services.JpaUserDetailsService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -67,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/register/confirm").permitAll()
                         .requestMatchers("/user/passwordReset").permitAll()
                         .requestMatchers("/user/passwordReset/confirm").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/support/submissions").permitAll()
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
