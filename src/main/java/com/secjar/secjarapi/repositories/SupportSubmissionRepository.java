@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface SupportSubmissionRepository extends JpaRepository<SupportSubmission, Long> {
     List<Optional<SupportSubmission>> findAllByState(SupportSubmissionStatesEnum supportSubmissionStatesEnum);
+
+    Optional<SupportSubmission> findByUuid(String supportSubmissionUuid);
 }

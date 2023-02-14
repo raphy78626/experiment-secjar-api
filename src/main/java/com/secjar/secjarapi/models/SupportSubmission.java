@@ -5,6 +5,7 @@ import com.secjar.secjarapi.enums.SupportSubmissionStatesEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
@@ -24,6 +25,7 @@ public class SupportSubmission {
     private String message;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private SupportSubmissionStatesEnum state;
 
     public SupportSubmission(String uuid, String name, String surname, String message) {

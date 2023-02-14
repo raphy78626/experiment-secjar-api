@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.dtos.requests.SupportSubmissionPatchRequestDTO;
 import com.secjar.secjarapi.enums.SupportSubmissionStatesEnum;
 import com.secjar.secjarapi.models.SupportSubmission;
 import com.secjar.secjarapi.repositories.SupportSubmissionRepository;
@@ -19,7 +20,7 @@ public class SupportSubmissionService {
         this.supportSubmissionRepository = supportSubmissionRepository;
     }
 
-    public void saveTechnicalSupportSubmission(SupportSubmission supportSubmission) {
+    public void saveSupportSubmission(SupportSubmission supportSubmission) {
         supportSubmissionRepository.save(supportSubmission);
     }
 
@@ -31,5 +32,19 @@ public class SupportSubmissionService {
         }
 
         return pendingSubmissions.stream().flatMap(Optional::stream).collect(Collectors.toList());
+    }
+
+    public SupportSubmission getSubmissionByUuid(String supportSubmissionUuid) {
+        return supportSubmissionRepository.findByUuid(supportSubmissionUuid).orElseThrow(() -> new RuntimeException(String.format("Submission with uuid %s does not exist", supportSubmissionUuid)));
+    }
+
+    public void patchSupportSubmission(String supportSubmissionUuid, SupportSubmissionPatchRequestDTO supportSubmissionPatchRequestDTO) {
+        SupportSubmission supportSubmission = getSubmissionByUuid(supportSubmissionUuid);
+
+        if (supportSubmissionPatchRequestDTO.submissionStatus() != null) {
+            supportSubmission.setState(supportSubmissionPatchRequestDTO.submissionStatus());
+        }
+
+        saveSupportSubmission(supportSubmission);
     }
 }

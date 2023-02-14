@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.requests.SupportRequestDTO;
+import com.secjar.secjarapi.dtos.requests.SupportSubmissionPatchRequestDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.TechnicalSupportSubmissionResponseDTO;
 import com.secjar.secjarapi.models.SupportSubmission;
@@ -31,7 +32,7 @@ public class TechnicalSupportController {
                 supportRequestDTO.surname(),
                 supportRequestDTO.message());
 
-        supportSubmissionService.saveTechnicalSupportSubmission(supportSubmission);
+        supportSubmissionService.saveSupportSubmission(supportSubmission);
 
         return ResponseEntity.status(201).body(new MessageResponseDTO("Technical support submission created"));
     }
@@ -42,5 +43,12 @@ public class TechnicalSupportController {
         List<SupportSubmission> pendingSubmissions = supportSubmissionService.getPendingSubmissions();
 
         return ResponseEntity.ok(new TechnicalSupportSubmissionResponseDTO(pendingSubmissions));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/submissions/{uuid}")
+    public ResponseEntity<MessageResponseDTO> patchSubmission(@PathVariable("uuid") String supportSubmissionUuid, @RequestBody SupportSubmissionPatchRequestDTO supportSubmissionPatchRequestDTO) {
+        supportSubmissionService.patchSupportSubmission(supportSubmissionUuid, supportSubmissionPatchRequestDTO);
+        return ResponseEntity.status(204).build();
     }
 }
