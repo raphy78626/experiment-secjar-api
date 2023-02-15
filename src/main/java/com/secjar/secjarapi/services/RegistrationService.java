@@ -47,6 +47,8 @@ public class RegistrationService {
         User user = new User(
                 UUID.randomUUID().toString(),
                 accountCreationCredentials.getUsername(),
+                accountCreationCredentials.getName(),
+                accountCreationCredentials.getSurname(),
                 passwordEncoder.encode(registrationRequestDTO.password()),
                 accountCreationCredentials.getEmail(),
                 Set.of(userRole));

@@ -42,6 +42,8 @@ public class UserInvitationService {
 
         AccountCreationCredentials accountCreationCredentials = new AccountCreationCredentials(
                 inviteUserRequestDTO.username(),
+                inviteUserRequestDTO.name(),
+                inviteUserRequestDTO.surname(),
                 inviteUserRequestDTO.email(),
                 UUID.randomUUID().toString(),
                 LocalDateTime.now(),

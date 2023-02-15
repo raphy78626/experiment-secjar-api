@@ -1,4 +1,7 @@
 package com.secjar.secjarapi.dtos.requests;
 
-public record InviteUserRequestDTO(String username, String email) {
+import lombok.NonNull;
+
+public record InviteUserRequestDTO(@NonNull String username, @NonNull String name, @NonNull String surname,
+                                   @NonNull String email) {
 }

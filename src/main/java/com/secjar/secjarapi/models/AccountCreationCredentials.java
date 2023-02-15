@@ -18,6 +18,8 @@ public class AccountCreationCredentials {
     private long id;
 
     private String username;
+    private String name;
+    private String surname;
     private String email;
 
     private String token;
@@ -27,8 +29,10 @@ public class AccountCreationCredentials {
     @Setter
     private LocalDateTime usedAt;
 
-    public AccountCreationCredentials(String username, String email, String token, LocalDateTime createdAt, LocalDateTime expiresAt) {
+    public AccountCreationCredentials(String username, String name, String surname, String email, String token, LocalDateTime createdAt, LocalDateTime expiresAt) {
         this.username = username;
+        this.name = name;
+        this.surname = surname;
         this.email = email;
         this.token = token;
         this.createdAt = createdAt;

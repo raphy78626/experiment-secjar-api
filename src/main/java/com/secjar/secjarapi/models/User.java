@@ -22,6 +22,8 @@ public class User {
     private String uuid;
 
     private String username;
+    private String name;
+    private String surname;
     @Setter
     private String password;
     private String email;
@@ -58,9 +60,11 @@ public class User {
     @ManyToMany(mappedBy = "authorizedUsers")
     private Set<FileSystemEntryInfo> sharedFileSystemEntries = new HashSet<>();
 
-    public User(String uuid, String username, String password, String email, Set<UserRole> roles) {
+    public User(String uuid, String username, String name, String surname, String password, String email, Set<UserRole> roles) {
         this.uuid = uuid;
         this.username = username;
+        this.name = name;
+        this.surname = surname;
         this.password = password;
         this.email = email;
         this.roles = roles;
