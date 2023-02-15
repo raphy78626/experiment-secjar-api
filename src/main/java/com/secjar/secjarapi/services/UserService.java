@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
 @Service
@@ -188,5 +190,9 @@ public class UserService {
         }
 
         saveUser(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
