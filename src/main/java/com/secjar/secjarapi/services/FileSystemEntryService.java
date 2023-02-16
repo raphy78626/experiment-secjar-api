@@ -3,6 +3,7 @@ package com.secjar.secjarapi.services;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.enums.ShareActionsEnum;
+import com.secjar.secjarapi.enums.ShareTypesEnum;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import jodd.net.MimeTypes;
@@ -65,7 +66,7 @@ public class FileSystemEntryService {
 
             fileSystemEntry.getAuthorizedUsers().clear();
             for (User authorizeUser : targetFileSystemEntry.getAuthorizedUsers()) {
-                updateShareFileSystemEntryWithUser(fileSystemEntry, authorizeUser.getUuid(), ShareActionsEnum.START_SHARE);
+                updateShareFileSystemEntryWithUser(fileSystemEntry, authorizeUser.getUuid(), ShareActionsEnum.SHARE_START);
             }
         } else {
             fileSystemEntry.setParent(null);
@@ -201,9 +202,9 @@ public class FileSystemEntryService {
     public void updateShareFileSystemEntryWithUser(FileSystemEntryInfo fileSystemEntryInfo, String userUuid, ShareActionsEnum shareAction) {
         User user = userService.getUserByUuid(userUuid);
 
-        if (shareAction == ShareActionsEnum.START_SHARE) {
+        if (shareAction == ShareActionsEnum.SHARE_START) {
             fileSystemEntryInfo.getAuthorizedUsers().add(user);
-        } else if (shareAction == ShareActionsEnum.STOP_SHARE) {
+        } else if (shareAction == ShareActionsEnum.SHARE_STOP) {
             fileSystemEntryInfo.getAuthorizedUsers().remove(user);
         }
 
@@ -212,6 +213,39 @@ public class FileSystemEntryService {
         if (fileSystemEntryInfo.getContentType().equals("directory")) {
             for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
                 updateShareFileSystemEntryWithUser(childFileSystemEntry, userUuid, shareAction);
+            }
+        }
+    }
+
+    public void updateShareFileByLink(FileSystemEntryInfo fileSystemEntryInfo, ShareActionsEnum shareAction) {
+        if (shareAction == ShareActionsEnum.SHARE_START) {
+            fileSystemEntryInfo.setSharedByLink(true);
+        } else if (shareAction == ShareActionsEnum.SHARE_STOP) {
+            fileSystemEntryInfo.setSharedByLink(false);
+        }
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+
+        if (fileSystemEntryInfo.getContentType().equals("directory")) {
+            for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
+                updateShareFileByLink(childFileSystemEntry, shareAction);
+            }
+        }
+    }
+
+    public void shareFiles(ShareTypesEnum shareType, ShareActionsEnum shareAction, Set<FileSystemEntryInfo> filesToShare, List<String> usersUuids) {
+        switch (shareType) {
+            case USER_SHARE -> {
+                for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
+                    for (String userUuid : usersUuids) {
+                        updateShareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid, shareAction);
+                    }
+                }
+            }
+            case LINK_SHARE -> {
+                for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
+                    updateShareFileByLink(fileSystemEntryInfo, shareAction);
+                }
             }
         }
     }

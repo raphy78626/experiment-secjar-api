@@ -35,6 +35,9 @@ public class FileSystemEntryInfo {
     private Timestamp deleteDate;
 
     @Setter
+    private boolean isSharedByLink;
+
+    @Setter
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "parent_id")

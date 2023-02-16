@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/passwordReset").permitAll()
                         .requestMatchers("/user/passwordReset/confirm").permitAll()
                         .requestMatchers(HttpMethod.POST, "/support/submissions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/fileSystemEntries/{uuid}").permitAll()
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

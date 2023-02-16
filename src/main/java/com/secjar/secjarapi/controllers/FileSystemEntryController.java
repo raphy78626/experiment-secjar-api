@@ -72,12 +72,12 @@ public class FileSystemEntryController {
     @GetMapping("/{uuid}")
     public ResponseEntity<?> downloadFileSystemEntry(@PathVariable(name = "uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
 
-        User user = getUserFromPrincipal(principal);
-
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
-        if (!fileSystemEntryInfo.getAuthorizedUsers().contains(user)) {
-            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        if (!fileSystemEntryInfo.isSharedByLink()) {
+            if (principal == null || !fileSystemEntryInfo.getAuthorizedUsers().contains(getUserFromPrincipal(principal))) {
+                return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+            }
         }
 
         CryptoServerCXI.Key keyForDecryption = hsmService.getKeyFromStore(fileSystemEntryInfo.getUser().getCryptographicKeyIndex());
@@ -241,19 +241,18 @@ public class FileSystemEntryController {
 
         for (String fileUuid : fileSystemEntriesShareRequestDTO.fileSystemEntriesUuid()) {
             FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileUuid);
+
             if (!fileSystemEntryInfo.getUser().equals(user)) {
                 return ResponseEntity.status(403).body(new MessageResponseDTO(String.format("You don't have permission for that file %s", fileUuid)));
             }
+
             filesToShare.add(fileSystemEntryInfo);
         }
 
-        for (FileSystemEntryInfo fileSystemEntryInfo : filesToShare) {
-            for (String userUuid : fileSystemEntriesShareRequestDTO.usersUuids()) {
-                fileSystemEntryService.updateShareFileSystemEntryWithUser(fileSystemEntryInfo, userUuid, fileSystemEntriesShareRequestDTO.action());
-            }
-        }
+        fileSystemEntryService.shareFiles(fileSystemEntriesShareRequestDTO.shareType(), fileSystemEntriesShareRequestDTO.shareAction(), filesToShare, fileSystemEntriesShareRequestDTO.usersUuids());
 
-        if (fileSystemEntriesShareRequestDTO.action() == ShareActionsEnum.START_SHARE) {
+
+        if (fileSystemEntriesShareRequestDTO.shareAction() == ShareActionsEnum.SHARE_START) {
             return ResponseEntity.ok(new MessageResponseDTO("Files shared"));
         } else {
             return ResponseEntity.ok(new MessageResponseDTO("Files unshared"));
