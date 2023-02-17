@@ -7,6 +7,7 @@ import com.secjar.secjarapi.dtos.responses.UserInfoResponseDTO;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.services.FileSystemEntryService;
+import com.secjar.secjarapi.services.MFAService;
 import com.secjar.secjarapi.services.PasswordResetService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,13 @@ public class UserController {
     private final UserService userService;
     private final PasswordResetService passwordResetService;
     private final FileSystemEntryService fileSystemEntryService;
+    private final MFAService mfaService;
 
-    public UserController(UserService userService, PasswordResetService passwordResetService, FileSystemEntryService fileSystemEntryService) {
+    public UserController(UserService userService, PasswordResetService passwordResetService, FileSystemEntryService fileSystemEntryService, MFAService mfaService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
         this.fileSystemEntryService = fileSystemEntryService;
+        this.mfaService = mfaService;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -111,7 +114,7 @@ public class UserController {
         userService.updateUserMFA(userUuid, update2FARequest.use2FA());
 
         if (update2FARequest.use2FA()) {
-            return ResponseEntity.ok(new MFAQrCodeResponse(userService.generateQRUrl(userUuid)));
+            return ResponseEntity.ok(new MFAQrCodeResponse(mfaService.generateQRUrl(userUuid)));
         }
 
         return ResponseEntity.ok(new MessageResponseDTO("2FA authentication disabled"));

@@ -6,18 +6,11 @@ import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
-import dev.samstevens.totp.code.HashingAlgorithm;
-import dev.samstevens.totp.exceptions.QrGenerationException;
-import dev.samstevens.totp.qr.QrData;
-import dev.samstevens.totp.qr.QrGenerator;
-import dev.samstevens.totp.qr.ZxingPngQrGenerator;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
 @Service
 public class UserService {
@@ -123,31 +116,6 @@ public class UserService {
         User user = getUserByUuid(userUuid);
 
         return passwordEncoder.matches(password, user.getPassword());
-    }
-
-    public String generateQRUrl(String userUuid) {
-        User user = getUserByUuid(userUuid);
-
-        QrGenerator generator = new ZxingPngQrGenerator();
-
-        QrData data = new QrData.Builder()
-                .label(user.getEmail())
-                .secret(user.getMFASecret())
-                .issuer("SecJar")
-                .algorithm(HashingAlgorithm.SHA512)
-                .digits(6)
-                .period(30)
-                .build();
-
-        byte[] imageData;
-
-        try {
-            imageData = generator.generate(data);
-        } catch (QrGenerationException e) {
-            throw new RuntimeException(e);
-        }
-
-        return getDataUriForImage(imageData, generator.getImageMimeType());
     }
 
     public void updateUserMFA(String userUuid, boolean use2FA) {
