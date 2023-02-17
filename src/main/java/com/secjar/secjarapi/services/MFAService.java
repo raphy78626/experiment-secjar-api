@@ -6,12 +6,16 @@ import dev.samstevens.totp.exceptions.QrGenerationException;
 import dev.samstevens.totp.qr.QrData;
 import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.qr.ZxingPngQrGenerator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
 @Service
 public class MFAService {
+
+    @Value("${mfa.issuer}")
+    private String mfaIssuer;
 
     private final UserService userService;
 
@@ -27,7 +31,7 @@ public class MFAService {
         QrData data = new QrData.Builder()
                 .label(user.getEmail())
                 .secret(user.getMFASecret())
-                .issuer("SecJar")
+                .issuer(mfaIssuer)
                 .algorithm(HashingAlgorithm.SHA512)
                 .digits(6)
                 .period(30)

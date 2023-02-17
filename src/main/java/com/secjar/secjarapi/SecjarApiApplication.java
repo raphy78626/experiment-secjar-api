@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource("classpath:files.properties")
 @PropertySource("classpath:hsm.properties")
 @PropertySource("classpath:accountCreation.properties")
+@PropertySource("classpath:mfa.properties")
 @EnableScheduling
 @SpringBootApplication
 public class SecjarApiApplication {
