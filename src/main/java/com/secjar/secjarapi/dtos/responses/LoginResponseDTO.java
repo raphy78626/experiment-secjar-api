@@ -1,4 +1,4 @@
 package com.secjar.secjarapi.dtos.responses;
 
-public record LoginResponseDTO(String token) {
+public record LoginResponseDTO(String accessToken, String refreshToken) {
 }

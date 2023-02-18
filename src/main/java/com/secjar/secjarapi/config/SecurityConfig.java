@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/refresh").permitAll()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/register/confirm").permitAll()
                         .requestMatchers("/user/passwordReset").permitAll()
