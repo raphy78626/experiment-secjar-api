@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.PasswordResetToken;
 import com.secjar.secjarapi.repositories.PasswordResetTokenRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PasswordResetTokenService {
     }
 
     public PasswordResetToken getToken(String token) {
-        return passwordResetTokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException(String.format("Token: %s does not exist", token)));
+        return passwordResetTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException(String.format("Token: %s does not exist", token)));
     }
 
     public void setUsedAt(String token) {

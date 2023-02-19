@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.ConfirmationToken;
 import com.secjar.secjarapi.repositories.ConfirmationTokenRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class ConfirmationTokenService {
     }
 
     public ConfirmationToken getTokenByToken(String token) {
-        return confirmationTokenRepository.findByToken(token).orElseThrow(() -> new IllegalStateException(String.format("Confirmation token %s not found", token)));
+        return confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException(String.format("Confirmation token %s not found", token)));
     }
 
     public void setConfirmedAt(String token) {

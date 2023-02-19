@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.RefreshToken;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.RefreshTokenRepository;
@@ -23,7 +24,7 @@ public class RefreshTokenService {
     }
 
     public RefreshToken getRefreshTokenByToken(String token) {
-        return refreshTokenRepository.findByToken(token).orElseThrow(() -> new IllegalStateException(String.format("Refresh token %s not found", token)));
+        return refreshTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException(String.format("Refresh token %s not found", token)));
     }
 
     public void deleteRefreshToken(RefreshToken refreshToken) {

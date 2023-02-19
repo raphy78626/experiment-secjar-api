@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.repositories.FileSystemEntryInfoRepository;
@@ -37,12 +38,11 @@ public class FileSystemEntryInfoService {
     }
 
     public FileSystemEntryInfo getFileSystemEntryInfoByUuid(String fileSystemEntryInfoUuid) {
-        //TODO: create custom exception
-        return fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with uuid: %s does not exist", fileSystemEntryInfoUuid)));
+        return fileSystemEntryInfoRepository.findByUuid(fileSystemEntryInfoUuid).orElseThrow(() -> new ResourceNotFoundException(String.format("FileSystemEntryInfo with uuid: %s does not exist", fileSystemEntryInfoUuid)));
     }
 
     public FileSystemEntryInfo getFileSystemEntryInfoByName(String fileSystemEntryName) {
-        return fileSystemEntryInfoRepository.findByName(fileSystemEntryName).orElseThrow(() -> new RuntimeException(String.format("FileSystemEntryInfo with name: %s does not exist", fileSystemEntryName)));
+        return fileSystemEntryInfoRepository.findByName(fileSystemEntryName).orElseThrow(() -> new ResourceNotFoundException(String.format("FileSystemEntryInfo with name: %s does not exist", fileSystemEntryName)));
     }
 
     public List<FileSystemEntryInfo> getAllWithDeleteDateLessThan(Timestamp timestamp) {

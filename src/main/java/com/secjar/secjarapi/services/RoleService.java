@@ -1,7 +1,7 @@
 package com.secjar.secjarapi.services;
 
 import com.secjar.secjarapi.enums.UserRolesEnum;
-import com.secjar.secjarapi.exceptions.RoleNotFoundException;
+import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.RoleRepository;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,6 @@ public class RoleService {
     }
 
     public UserRole getRole(UserRolesEnum role) {
-        return roleRepository.findByRole(role).orElseThrow(() -> new RoleNotFoundException(String.format("Role %s does not exist", role)));
+        return roleRepository.findByRole(role).orElseThrow(() -> new ResourceNotFoundException(String.format("Role %s does not exist", role)));
     }
 }

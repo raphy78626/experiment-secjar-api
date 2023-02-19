@@ -3,10 +3,10 @@ package com.secjar.secjarapi.services;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
+import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,19 +27,19 @@ public class UserService {
     }
 
     public User getUserByUuid(String uuid) {
-        return userRepository.findByUuid(uuid).orElseThrow(() -> new UsernameNotFoundException(String.format("User with uuid: %s does not exist", uuid)));
+        return userRepository.findByUuid(uuid).orElseThrow(() -> new ResourceNotFoundException(String.format("User with uuid: %s does not exist", uuid)));
     }
 
     public User getUserById(long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(String.format("User with id: %s does not exist", id)));
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id: %s does not exist", id)));
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("User with username: %s does not exist", username)));
+        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("User with username: %s does not exist", username)));
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User with email: %s does not exist", email)));
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(String.format("User with email: %s does not exist", email)));
     }
 
     public boolean checkIfUserWithEmailExist(String email) {
