@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
+import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,6 +19,12 @@ public class ErrorHandlingController {
         Map<String, Object> errorMessage = createExceptionResponseBody(ex, 404);
 
         return ResponseEntity.status(404).body(errorMessage);
+    }
+
+    @ExceptionHandler({InternalException.class})
+    protected ResponseEntity<Object> handleInternalException(Exception ex, WebRequest request) {
+        Map<String, Object> errorMessage = createExceptionResponseBody(ex, 500);
+        return ResponseEntity.status((int)errorMessage.get("status")).body(errorMessage);
     }
 
     private static Map<String, Object> createExceptionResponseBody(Exception originalException, int statusCode) {

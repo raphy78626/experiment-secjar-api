@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
+import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,16 +33,14 @@ public class FileService {
             file.getParentFile().mkdir();
             file.createNewFile();
         } catch (IOException e) {
-            //TODO: Handle exception
-            throw new RuntimeException("Error while creating the file", e);
+            throw new InternalException("Error while creating the file", e);
         }
 
         byte[] encryptedFile;
         try {
             encryptedFile = hsmService.encryptData(multipartFile.getBytes(), keyForEncryption);
         } catch (IOException e) {
-            //TODO: Handle exception
-            throw new RuntimeException("Error while encrypting the file", e);
+            throw new InternalException("Error while encrypting the file", e);
         }
 
         try {
@@ -51,8 +50,7 @@ public class FileService {
 
             targetFileOutputStream.close();
         } catch (IOException e) {
-            //TODO: Handle exception
-            throw new RuntimeException("Error while saving the file", e);
+            throw new InternalException("Error while saving the file", e);
         }
     }
 
@@ -65,7 +63,7 @@ public class FileService {
         try {
             fileBytes = Files.readAllBytes(encryptedFile.toPath());
         } catch (IOException e) {
-            throw new RuntimeException("Error while getting the file", e);
+            throw new InternalException("Error while getting the file", e);
         }
 
         return hsmService.decryptData(fileBytes, keyForDecryption);
@@ -79,7 +77,7 @@ public class FileService {
         try {
             fileBytes = Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            throw new RuntimeException("Error while getting the file", e);
+            throw new InternalException("Error while getting the file", e);
         }
 
 
@@ -90,8 +88,7 @@ public class FileService {
             file.getParentFile().mkdir();
             file.createNewFile();
         } catch (IOException e) {
-            //TODO: Handle exception
-            throw new RuntimeException("Error while creating the file", e);
+            throw new InternalException("Error while creating the file", e);
         }
 
         try {
@@ -101,8 +98,7 @@ public class FileService {
 
             targetFileOutputStream.close();
         } catch (IOException e) {
-            //TODO: Handle exception
-            throw new RuntimeException("Error while saving the file", e);
+            throw new InternalException("Error while saving the file", e);
         }
     }
 
@@ -113,7 +109,7 @@ public class FileService {
         try {
             Files.delete(attachmentDirectoryPath);
         } catch (IOException e) {
-            throw new RuntimeException("Error while deleting attachment", e);
+            throw new InternalException("Error while deleting attachment", e);
         }
     }
 }

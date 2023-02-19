@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.models.User;
 import dev.samstevens.totp.code.HashingAlgorithm;
 import dev.samstevens.totp.exceptions.QrGenerationException;
@@ -42,7 +43,7 @@ public class MFAService {
         try {
             imageData = generator.generate(data);
         } catch (QrGenerationException e) {
-            throw new RuntimeException(e);
+            throw new InternalException("Problem while generating 2FA QR code", e);
         }
 
         return getDataUriForImage(imageData, generator.getImageMimeType());

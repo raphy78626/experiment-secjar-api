@@ -2,6 +2,7 @@ package com.secjar.secjarapi.services;
 
 import CryptoServerAPI.CryptoServerException;
 import CryptoServerCXI.CryptoServerCXI;
+import com.secjar.secjarapi.exceptions.InternalException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class HsmService {
 
             return serverCXI.generateKey(CryptoServerCXI.FLAG_EXTERNAL, keyAttributes);
         } catch (CryptoServerException | IOException e) {
-            throw new RuntimeException(e);
+            throw new InternalException("Problem while generating hsm key", e);
         } finally {
             if (serverCXI != null) {
                 serverCXI.close();
@@ -48,7 +49,7 @@ public class HsmService {
             keyIndex = keyToStore.getUName();
             return keyStore.insertKey(CryptoServerCXI.FLAG_OVERWRITE, keyIndex, keyToStore);
         } catch (NoSuchAlgorithmException | CryptoServerException | IOException e) {
-            throw new RuntimeException("Problem while storing the key in hsm", e);
+            throw new InternalException("Problem while storing the key in hsm", e);
         }
     }
 
@@ -57,7 +58,7 @@ public class HsmService {
             CryptoServerCXI.KeyStore keyStore = new CryptoServerCXI.KeyStore(hsmKeyStoreLocation, 16);
             return keyStore.getKey(keyIndex);
         } catch (IOException | CryptoServerException e) {
-            throw new RuntimeException(e);
+            throw new InternalException("Problem while getting key from hsm", e);
         }
     }
 
@@ -69,7 +70,7 @@ public class HsmService {
             int mechanisms = CryptoServerCXI.MECH_MODE_ENCRYPT | CryptoServerCXI.MECH_CHAIN_CBC | CryptoServerCXI.MECH_PAD_PKCS5;
             encryptedData = serverCXI.crypt(keyForEncryption, mechanisms, null, data, null);
         } catch (CryptoServerException | IOException e) {
-            throw new RuntimeException("Error while encrypting data", e);
+            throw new InternalException("Error while encrypting data", e);
         } finally {
             if (serverCXI != null) {
                 serverCXI.close();
@@ -87,7 +88,7 @@ public class HsmService {
             int mechanisms = CryptoServerCXI.MECH_MODE_DECRYPT | CryptoServerCXI.MECH_CHAIN_CBC | CryptoServerCXI.MECH_PAD_PKCS5;
             decryptedData = serverCXI.crypt(keyForDecryption, mechanisms, null, encryptedData, null);
         } catch (CryptoServerException | IOException e) {
-            throw new RuntimeException("Error while decrypting data", e);
+            throw new InternalException("Error while decrypting data", e);
         } finally {
             if (serverCXI != null) {
                 serverCXI.close();
@@ -112,7 +113,7 @@ public class HsmService {
 
             serverCXI.logonPassword(hsmLogin, hsmPassword);
         } catch (CryptoServerException | IOException e) {
-            throw new RuntimeException("Error while initializing Crypto Server CXI", e);
+            throw new InternalException("Error while initializing Crypto Server CXI", e);
         }
 
         return serverCXI;

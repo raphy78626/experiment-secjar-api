@@ -4,6 +4,7 @@ import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.enums.ShareActionsEnum;
 import com.secjar.secjarapi.enums.ShareTypesEnum;
+import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.models.FileSystemEntryInfo;
 import com.secjar.secjarapi.models.User;
 import jodd.net.MimeTypes;
@@ -160,7 +161,7 @@ public class FileSystemEntryService {
 
             return byteArrayOutputStream;
         } catch (IOException e) {
-            throw new RuntimeException("Error while creating zip from directory", e);
+            throw new InternalException("Error while creating zip from directory", e);
         }
     }
 
@@ -177,7 +178,7 @@ public class FileSystemEntryService {
 
                     zipOutputStream.closeEntry();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new InternalException("Error while creating zip from directory", e);
                 }
             } else {
                 String newPath = path + fileSystemEntryInfo.getName() + "/";
