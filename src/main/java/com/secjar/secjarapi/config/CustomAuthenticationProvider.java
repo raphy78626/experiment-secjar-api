@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.config;
 
+import com.secjar.secjarapi.exceptions.EmailNotVerifiedException;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.UserService;
 import dev.samstevens.totp.code.CodeVerifier;
@@ -42,7 +43,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
         }
 
         if (!user.isVerified()) {
-            throw new RuntimeException("Email is not verified");
+            throw new EmailNotVerifiedException("Email is not verified");
         }
 
         Authentication result = super.authenticate(authentication);

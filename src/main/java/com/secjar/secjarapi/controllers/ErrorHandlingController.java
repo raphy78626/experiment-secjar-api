@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
+import com.secjar.secjarapi.exceptions.EmailNotVerifiedException;
 import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,12 @@ public class ErrorHandlingController {
     protected ResponseEntity<Object> handleBadCredentialsException(Exception ex, WebRequest request) {
         Map<String, Object> errorMessage = createExceptionResponseBody("Wrong username, password or 2FA code", 400);
         return ResponseEntity.status(400).body(errorMessage);
+    }
+
+    @ExceptionHandler({EmailNotVerifiedException.class})
+    protected ResponseEntity<Object> handleEmailNotVerifiedException(Exception ex, WebRequest request) {
+        Map<String, Object> errorMessage = createExceptionResponseBody(ex.getMessage(), 401);
+        return ResponseEntity.status(401).body(errorMessage);
     }
 
     private static Map<String, Object> createExceptionResponseBody(String message, int statusCode) {
