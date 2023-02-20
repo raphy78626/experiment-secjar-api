@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
+import com.secjar.secjarapi.exceptions.BadNewPasswordException;
 import com.secjar.secjarapi.exceptions.EmailNotVerifiedException;
 import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
@@ -39,6 +40,12 @@ public class ErrorHandlingController {
     protected ResponseEntity<Object> handleEmailNotVerifiedException(Exception ex, WebRequest request) {
         Map<String, Object> errorMessage = createExceptionResponseBody(ex.getMessage(), 401);
         return ResponseEntity.status(401).body(errorMessage);
+    }
+
+    @ExceptionHandler({BadNewPasswordException.class})
+    protected ResponseEntity<Object> handleBadNewPasswordException(Exception ex, WebRequest request) {
+        Map<String, Object> errorMessage = createExceptionResponseBody("Bad password. Password need to have between 8 and 30 letters, at least one uppercase letter, one lowercase letter, one digit and one special character.", 400);
+        return ResponseEntity.status(400).body(errorMessage);
     }
 
     private static Map<String, Object> createExceptionResponseBody(String message, int statusCode) {

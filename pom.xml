@@ -89,6 +89,11 @@
             <artifactId>jodd-util</artifactId>
             <version>6.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.passay</groupId>
+            <artifactId>passay</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

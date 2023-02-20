@@ -3,10 +3,12 @@ package com.secjar.secjarapi.services;
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
+import com.secjar.secjarapi.exceptions.BadNewPasswordException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
+import com.secjar.secjarapi.utils.PasswordValidatorUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final HsmService hsmService;
+    private final PasswordValidatorUtil passwordValidator;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService, HsmService hsmService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService, HsmService hsmService, PasswordValidatorUtil passwordValidator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.hsmService = hsmService;
+        this.passwordValidator = passwordValidator;
     }
 
     public User getUserByUuid(String uuid) {
@@ -73,7 +77,10 @@ public class UserService {
     public void changeUserPasswordByUuid(String userUuid, String newPassword) {
         User user = getUserByUuid(userUuid);
 
-        //TODO: check for password strength
+        if (!passwordValidator.validate(newPassword)) {
+            throw new BadNewPasswordException();
+        }
+
         user.setPassword(passwordEncoder.encode(newPassword));
 
         saveUser(user);
@@ -82,7 +89,10 @@ public class UserService {
     public void changeUserPasswordByEmail(String userEmail, String newPassword) {
         User user = getUserByEmail(userEmail);
 
-        //TODO: check for password strength
+        if (!passwordValidator.validate(newPassword)) {
+            throw new BadNewPasswordException();
+        }
+
         user.setPassword(passwordEncoder.encode(newPassword));
 
         saveUser(user);
