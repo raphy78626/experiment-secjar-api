@@ -2,10 +2,12 @@ package com.secjar.secjarapi.services;
 
 import com.secjar.secjarapi.dtos.requests.RegistrationRequestDTO;
 import com.secjar.secjarapi.enums.UserRolesEnum;
+import com.secjar.secjarapi.exceptions.BadNewPasswordException;
 import com.secjar.secjarapi.models.AccountCreationCredentials;
 import com.secjar.secjarapi.models.ConfirmationToken;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
+import com.secjar.secjarapi.utils.PasswordValidatorUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,14 +28,16 @@ public class RegistrationService {
     private final AccountCreationCredentialsService accountCreationCredentialsService;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordValidatorUtil passwordValidator;
 
-    public RegistrationService(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService, AccountCreationCredentialsService accountCreationCredentialsService, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public RegistrationService(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService, AccountCreationCredentialsService accountCreationCredentialsService, RoleService roleService, PasswordEncoder passwordEncoder, PasswordValidatorUtil passwordValidator) {
         this.userService = userService;
         this.confirmationTokenService = confirmationTokenService;
         this.emailSenderService = emailSenderService;
         this.accountCreationCredentialsService = accountCreationCredentialsService;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
+        this.passwordValidator = passwordValidator;
     }
 
     public void register(String accountCreationToken, RegistrationRequestDTO registrationRequestDTO) {
@@ -43,6 +47,11 @@ public class RegistrationService {
         AccountCreationCredentials accountCreationCredentials = accountCreationCredentialsService.getTokenByToken(accountCreationToken);
 
         UserRole userRole = roleService.getRole(UserRolesEnum.ROLE_USER);
+
+
+        if (!passwordValidator.validate(registrationRequestDTO.password())) {
+            throw new BadNewPasswordException();
+        }
 
         User user = new User(
                 UUID.randomUUID().toString(),
