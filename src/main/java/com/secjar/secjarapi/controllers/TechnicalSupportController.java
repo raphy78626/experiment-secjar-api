@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class TechnicalSupportController {
 
         supportSubmissionService.saveSupportSubmission(supportSubmission);
 
-        return ResponseEntity.status(201).body(new MessageResponseDTO("Technical support submission created"));
+        return ResponseEntity.created(URI.create(String.format("/submissions/%s", supportSubmission.getUuid()))).body(new MessageResponseDTO("Technical support submission created"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
