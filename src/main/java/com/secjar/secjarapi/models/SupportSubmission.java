@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Getter
 @Entity
@@ -23,6 +25,9 @@ public class SupportSubmission {
 
     @Column(columnDefinition = "TEXT")
     private String message;
+
+    @OneToMany(mappedBy = "supportSubmission")
+    private List<SupportSubmissionNote> notes;
 
     @Enumerated(EnumType.STRING)
     @Setter

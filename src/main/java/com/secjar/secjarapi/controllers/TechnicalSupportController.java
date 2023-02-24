@@ -1,8 +1,10 @@
 package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.requests.SupportRequestDTO;
+import com.secjar.secjarapi.dtos.requests.SupportSubmissionCreateRequestDTO;
 import com.secjar.secjarapi.dtos.requests.SupportSubmissionPatchRequestDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
+import com.secjar.secjarapi.dtos.responses.SupportSubmissionNotesResponseDTO;
 import com.secjar.secjarapi.dtos.responses.TechnicalSupportSubmissionResponseDTO;
 import com.secjar.secjarapi.models.SupportSubmission;
 import com.secjar.secjarapi.services.SupportSubmissionService;
@@ -51,5 +53,23 @@ public class TechnicalSupportController {
     public ResponseEntity<MessageResponseDTO> patchSubmission(@PathVariable("uuid") String supportSubmissionUuid, @RequestBody SupportSubmissionPatchRequestDTO supportSubmissionPatchRequestDTO) {
         supportSubmissionService.patchSupportSubmission(supportSubmissionUuid, supportSubmissionPatchRequestDTO);
         return ResponseEntity.status(204).build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/submissions/{uuid}/notes")
+    public ResponseEntity<MessageResponseDTO> createSubmissionNote(@PathVariable("uuid") String supportSubmissionUuid, @RequestBody SupportSubmissionCreateRequestDTO supportSubmissionCreateRequestDTO) {
+
+        String noteUuid = supportSubmissionService.addNote(supportSubmissionUuid, supportSubmissionCreateRequestDTO);
+
+        return ResponseEntity.created(URI.create(String.format("/submissions/%s/notes/%s", supportSubmissionUuid, noteUuid))).body(new MessageResponseDTO("Note created"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/submissions/{uuid}/notes")
+    public ResponseEntity<SupportSubmissionNotesResponseDTO> getSubmissionNotes(@PathVariable("uuid") String supportSubmissionUuid) {
+
+        SupportSubmission supportSubmission = supportSubmissionService.getSubmissionByUuid(supportSubmissionUuid);
+
+        return ResponseEntity.ok().body(new SupportSubmissionNotesResponseDTO(supportSubmission.getNotes()));
     }
 }
