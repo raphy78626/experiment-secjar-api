@@ -7,6 +7,7 @@ import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.SupportSubmissionNotesResponseDTO;
 import com.secjar.secjarapi.dtos.responses.TechnicalSupportSubmissionResponseDTO;
 import com.secjar.secjarapi.models.SupportSubmission;
+import com.secjar.secjarapi.services.SupportSubmissionNoteService;
 import com.secjar.secjarapi.services.SupportSubmissionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,9 +22,11 @@ import java.util.UUID;
 public class TechnicalSupportController {
 
     private final SupportSubmissionService supportSubmissionService;
+    private final SupportSubmissionNoteService supportSubmissionNoteService;
 
-    public TechnicalSupportController(SupportSubmissionService supportSubmissionService) {
+    public TechnicalSupportController(SupportSubmissionService supportSubmissionService, SupportSubmissionNoteService supportSubmissionNoteService) {
         this.supportSubmissionService = supportSubmissionService;
+        this.supportSubmissionNoteService = supportSubmissionNoteService;
     }
 
     @PostMapping("/submissions")
@@ -71,5 +74,12 @@ public class TechnicalSupportController {
         SupportSubmission supportSubmission = supportSubmissionService.getSubmissionByUuid(supportSubmissionUuid);
 
         return ResponseEntity.ok().body(new SupportSubmissionNotesResponseDTO(supportSubmission.getNotes()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/submissions/notes/{noteUuid}")
+    public ResponseEntity<MessageResponseDTO> DeleteSubmissionNote(@PathVariable("noteUuid") String noteUuid) {
+        supportSubmissionNoteService.deleteSupportSubmissionNote(noteUuid);
+        return ResponseEntity.ok().body(new MessageResponseDTO("Submission note deleted"));
     }
 }

@@ -16,4 +16,8 @@ public class SupportSubmissionNoteService {
     public void saveSupportSubmissionNote(SupportSubmissionNote supportSubmissionNote) {
         supportSubmissionNoteRepository.save(supportSubmissionNote);
     }
+
+    public void deleteSupportSubmissionNote(String noteUuid) {
+        supportSubmissionNoteRepository.deleteByUuid(noteUuid);
+    }
 }
