@@ -78,7 +78,7 @@ public class TechnicalSupportController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/submissions/notes/{noteUuid}")
-    public ResponseEntity<MessageResponseDTO> DeleteSubmissionNote(@PathVariable("noteUuid") String noteUuid) {
+    public ResponseEntity<MessageResponseDTO> deleteSubmissionNote(@PathVariable("noteUuid") String noteUuid) {
         supportSubmissionNoteService.deleteSupportSubmissionNote(noteUuid);
         return ResponseEntity.ok().body(new MessageResponseDTO("Submission note deleted"));
     }
