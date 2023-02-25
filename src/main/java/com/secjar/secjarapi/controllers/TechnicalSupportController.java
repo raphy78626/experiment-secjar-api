@@ -2,6 +2,7 @@ package com.secjar.secjarapi.controllers;
 
 import com.secjar.secjarapi.dtos.requests.SupportRequestDTO;
 import com.secjar.secjarapi.dtos.requests.SupportSubmissionCreateRequestDTO;
+import com.secjar.secjarapi.dtos.requests.SupportSubmissionNotePatchRequestDTO;
 import com.secjar.secjarapi.dtos.requests.SupportSubmissionPatchRequestDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.SupportSubmissionNotesResponseDTO;
@@ -81,5 +82,12 @@ public class TechnicalSupportController {
     public ResponseEntity<MessageResponseDTO> deleteSubmissionNote(@PathVariable("noteUuid") String noteUuid) {
         supportSubmissionNoteService.deleteSupportSubmissionNote(noteUuid);
         return ResponseEntity.ok().body(new MessageResponseDTO("Submission note deleted"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/submissions/notes/{uuid}")
+    public ResponseEntity<MessageResponseDTO> patchSubmissionNotes(@PathVariable("uuid") String noteUuid, @RequestBody SupportSubmissionNotePatchRequestDTO supportSubmissionNotePatchRequestDTO) {
+        supportSubmissionNoteService.pathSupportSubmissionNote(noteUuid, supportSubmissionNotePatchRequestDTO);
+        return ResponseEntity.status(204).build();
     }
 }

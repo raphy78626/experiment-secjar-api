@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
@@ -17,6 +18,7 @@ public class SupportSubmissionNote {
     private String uuid;
 
     @Column(columnDefinition = "TEXT")
+    @Setter
     private String noteContent;
 
     @JsonIgnore
