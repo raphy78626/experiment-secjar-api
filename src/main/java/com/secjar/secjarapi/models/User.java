@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.models;
 
+import com.secjar.secjarapi.enums.MFATypeEnum;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -38,7 +39,8 @@ public class User {
     private long fileDeletionDelay = 2_592_000_000L;
 
     @Setter
-    private boolean isUsingMFA;
+    @Enumerated(EnumType.STRING)
+    private MFATypeEnum mfaType;
     private String mFASecret;
 
     @Setter
@@ -60,6 +62,9 @@ public class User {
     @ManyToMany(mappedBy = "authorizedUsers")
     private Set<FileSystemEntryInfo> sharedFileSystemEntries = new HashSet<>();
 
+    @OneToOne(mappedBy = "user")
+    private EmailOTPToken emailOTPToken;
+
     public User(String uuid, String username, String name, String surname, String password, String email, Set<UserRole> roles) {
         this.uuid = uuid;
         this.username = username;
@@ -68,6 +73,7 @@ public class User {
         this.password = password;
         this.email = email;
         this.roles = roles;
+        this.mfaType = MFATypeEnum.NONE;
         this.mFASecret = new DefaultSecretGenerator().generate();
     }
 

@@ -4,6 +4,7 @@ import com.secjar.secjarapi.dtos.requests.*;
 import com.secjar.secjarapi.dtos.responses.MFAQrCodeResponse;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.UserInfoResponseDTO;
+import com.secjar.secjarapi.enums.MFATypeEnum;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.services.FileSystemEntryService;
@@ -44,7 +45,7 @@ public class UserController {
                         user.getUsername(),
                         user.getEmail(),
                         user.isVerified(),
-                        user.isUsingMFA(),
+                        user.getMfaType(),
                         user.getFileDeletionDelay(),
                         user.getCurrentDiskSpace(),
                         user.getAllowedDiskSpace(),
@@ -67,7 +68,7 @@ public class UserController {
                 user.getUsername(),
                 user.getEmail(),
                 user.isVerified(),
-                user.isUsingMFA(),
+                user.getMfaType(),
                 user.getFileDeletionDelay(),
                 user.getCurrentDiskSpace(),
                 user.getAllowedDiskSpace(),
@@ -111,9 +112,9 @@ public class UserController {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You can't change data of this user"));
         }
 
-        userService.updateUserMFA(userUuid, update2FARequest.use2FA());
+        userService.updateUserMFA(userUuid, update2FARequest.mfaType());
 
-        if (update2FARequest.use2FA()) {
+        if (update2FARequest.mfaType() == MFATypeEnum.TOTP) {
             return ResponseEntity.ok(new MFAQrCodeResponse(mfaService.generateQRUrl(userUuid)));
         }
 

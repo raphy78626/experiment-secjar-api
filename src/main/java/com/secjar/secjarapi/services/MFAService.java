@@ -1,6 +1,7 @@
 package com.secjar.secjarapi.services;
 
 import com.secjar.secjarapi.exceptions.InternalException;
+import com.secjar.secjarapi.models.EmailOTPToken;
 import com.secjar.secjarapi.models.User;
 import dev.samstevens.totp.code.HashingAlgorithm;
 import dev.samstevens.totp.exceptions.QrGenerationException;
@@ -19,9 +20,13 @@ public class MFAService {
     private String mfaIssuer;
 
     private final UserService userService;
+    private final EmailSenderService emailSenderService;
+    private final EmailOTPTokenService emailOTPTokenService;
 
-    public MFAService(UserService userService) {
+    public MFAService(UserService userService, EmailSenderService emailSenderService, EmailOTPTokenService emailOTPTokenService) {
         this.userService = userService;
+        this.emailSenderService = emailSenderService;
+        this.emailOTPTokenService = emailOTPTokenService;
     }
 
     public String generateQRUrl(String userUuid) {
@@ -29,14 +34,7 @@ public class MFAService {
 
         QrGenerator generator = new ZxingPngQrGenerator();
 
-        QrData data = new QrData.Builder()
-                .label(user.getEmail())
-                .secret(user.getMFASecret())
-                .issuer(mfaIssuer)
-                .algorithm(HashingAlgorithm.SHA512)
-                .digits(6)
-                .period(30)
-                .build();
+        QrData data = new QrData.Builder().label(user.getEmail()).secret(user.getMFASecret()).issuer(mfaIssuer).algorithm(HashingAlgorithm.SHA512).digits(6).period(30).build();
 
         byte[] imageData;
 
@@ -47,5 +45,25 @@ public class MFAService {
         }
 
         return getDataUriForImage(imageData, generator.getImageMimeType());
+    }
+
+    public void sendEmailOTP(User user) {
+        EmailOTPToken previousEmailOTPToken = user.getEmailOTPToken();
+
+        if (previousEmailOTPToken != null) {
+            emailOTPTokenService.deleteEmailOTPToken(previousEmailOTPToken);
+        }
+
+        String emailOTPToken = emailOTPTokenService.generateEmailOTPToken(user);
+
+        emailSenderService.sendSimpleMail(user.getEmail(), "Login one time password", "Password: " + emailOTPToken);
+    }
+
+    public boolean validateEmailOTP(String verificationCode, User user) {
+        if (user.getEmailOTPToken() != null && user.getEmailOTPToken().getToken().equals(verificationCode) && !emailOTPTokenService.isEmailOTPTokenExpired(user.getEmailOTPToken())) {
+            emailOTPTokenService.deleteEmailOTPTokenByToken(verificationCode);
+            return true;
+        }
+        return false;
     }
 }

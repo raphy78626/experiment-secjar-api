@@ -2,6 +2,7 @@ package com.secjar.secjarapi.config;
 
 import com.secjar.secjarapi.exceptions.EmailNotVerifiedException;
 import com.secjar.secjarapi.models.User;
+import com.secjar.secjarapi.services.MFAService;
 import com.secjar.secjarapi.services.UserService;
 import dev.samstevens.totp.code.CodeVerifier;
 import dev.samstevens.totp.code.DefaultCodeGenerator;
@@ -16,13 +17,13 @@ import org.springframework.security.core.Authentication;
 public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
     private final UserService userService;
-
     private final CodeVerifier mfaVerifier;
+    private final MFAService mfaService;
 
-    public CustomAuthenticationProvider(UserService userService) {
+    public CustomAuthenticationProvider(UserService userService, MFAService mfaService) {
         this.userService = userService;
-
         this.mfaVerifier = new DefaultCodeVerifier(new DefaultCodeGenerator(), new SystemTimeProvider());
+        this.mfaService = mfaService;
     }
 
 
@@ -36,9 +37,16 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
             throw new BadCredentialsException("Invalid username or password");
         }
 
-        if (user.isUsingMFA()) {
-            if (!isValidLong(verificationCode) || !mfaVerifier.isValidCode(user.getMFASecret(), verificationCode)) {
-                throw new BadCredentialsException("Invalid 2fa code");
+        switch (user.getMfaType()) {
+            case TOTP -> {
+                if (!isValidLong(verificationCode) || !mfaVerifier.isValidCode(user.getMFASecret(), verificationCode)) {
+                    throw new BadCredentialsException("Invalid 2fa code");
+                }
+            }
+            case OTP_EMAIL -> {
+                if (!mfaService.validateEmailOTP(verificationCode, user)) {
+                    throw new BadCredentialsException("Invalid 2fa code");
+                }
             }
         }
 

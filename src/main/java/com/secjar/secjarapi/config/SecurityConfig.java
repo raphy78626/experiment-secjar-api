@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.secjar.secjarapi.services.JpaUserDetailsService;
+import com.secjar.secjarapi.services.MFAService;
 import com.secjar.secjarapi.services.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,8 +52,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, UserService userService) {
-        DaoAuthenticationProvider authProvider = new CustomAuthenticationProvider(userService);
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, UserService userService, MFAService mfaService) {
+        DaoAuthenticationProvider authProvider = new CustomAuthenticationProvider(userService, mfaService);
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(authProvider);
@@ -65,6 +66,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/refresh").permitAll()
+                        .requestMatchers("/send2FATokenIfEnabled").permitAll()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/register/confirm").permitAll()
                         .requestMatchers("/user/passwordReset").permitAll()

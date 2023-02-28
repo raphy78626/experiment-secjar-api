@@ -2,6 +2,7 @@ package com.secjar.secjarapi.services;
 
 import CryptoServerCXI.CryptoServerCXI;
 import com.secjar.secjarapi.dtos.requests.UserPatchRequestDTO;
+import com.secjar.secjarapi.enums.MFATypeEnum;
 import com.secjar.secjarapi.enums.UserRolesEnum;
 import com.secjar.secjarapi.exceptions.BadNewPasswordException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
@@ -128,10 +129,10 @@ public class UserService {
         return passwordEncoder.matches(password, user.getPassword());
     }
 
-    public void updateUserMFA(String userUuid, boolean use2FA) {
+    public void updateUserMFA(String userUuid, MFATypeEnum mfaTypeEnum) {
         User user = getUserByUuid(userUuid);
 
-        user.setUsingMFA(use2FA);
+        user.setMfaType(mfaTypeEnum);
 
         saveUser(user);
     }
