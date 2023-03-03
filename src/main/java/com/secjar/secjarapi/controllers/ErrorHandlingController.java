@@ -32,8 +32,8 @@ public class ErrorHandlingController {
 
     @ExceptionHandler({BadCredentialsException.class})
     protected ResponseEntity<Object> handleBadCredentialsException(Exception ex, WebRequest request) {
-        Map<String, Object> errorMessage = createExceptionResponseBody("Wrong username, password or 2FA code", 400);
-        return ResponseEntity.status(400).body(errorMessage);
+        Map<String, Object> errorMessage = createExceptionResponseBody("Wrong username, password or 2FA code", 401);
+        return ResponseEntity.status(401).body(errorMessage);
     }
 
     @ExceptionHandler({EmailNotVerifiedException.class})
