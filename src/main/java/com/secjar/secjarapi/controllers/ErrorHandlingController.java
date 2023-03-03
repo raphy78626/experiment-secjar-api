@@ -6,6 +6,7 @@ import com.secjar.secjarapi.exceptions.InternalException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -30,7 +31,7 @@ public class ErrorHandlingController {
         return ResponseEntity.status(500).body(errorMessage);
     }
 
-    @ExceptionHandler({BadCredentialsException.class})
+    @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class})
     protected ResponseEntity<Object> handleBadCredentialsException(Exception ex, WebRequest request) {
         Map<String, Object> errorMessage = createExceptionResponseBody("Wrong username, password or 2FA code", 401);
         return ResponseEntity.status(401).body(errorMessage);

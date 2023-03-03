@@ -16,6 +16,7 @@ import com.secjar.secjarapi.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -69,6 +70,10 @@ public class AuthController {
     @PostMapping("/send2FATokenIfEnabled")
     public ResponseEntity<MessageResponseDTO> send2FATokenIfEnabled(@RequestBody Send2FATokenIfEnabledRequestDTO send2FATokenIfEnabledRequestDTO) {
         User user = userService.getUserByUsername(send2FATokenIfEnabledRequestDTO.username());
+
+        if(!userService.verifyUserPassword(user.getUuid(), send2FATokenIfEnabledRequestDTO.password())) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
 
         if (user.getMfaType() == MFATypeEnum.OTP_EMAIL) {
             mfaService.sendEmailOTP(user);

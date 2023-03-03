@@ -10,6 +10,7 @@ import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.models.UserRole;
 import com.secjar.secjarapi.repositories.UserRepository;
 import com.secjar.secjarapi.utils.PasswordValidatorUtil;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +41,7 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("User with username: %s does not exist", username)));
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("User with username: %s does not exist", username)));
     }
 
     public User getUserByEmail(String email) {
