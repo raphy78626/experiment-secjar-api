@@ -5,8 +5,8 @@ import com.secjar.secjarapi.dtos.requests.LoginRequestDTO;
 import com.secjar.secjarapi.dtos.requests.RefreshTokenLoginRequestDTO;
 import com.secjar.secjarapi.dtos.requests.Send2FATokenIfEnabledRequestDTO;
 import com.secjar.secjarapi.dtos.responses.LoginResponseDTO;
+import com.secjar.secjarapi.dtos.responses.MFATokenSendResponse;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
-import com.secjar.secjarapi.enums.MFATypeEnum;
 import com.secjar.secjarapi.models.RefreshToken;
 import com.secjar.secjarapi.models.User;
 import com.secjar.secjarapi.services.JwtTokenService;
@@ -68,17 +68,20 @@ public class AuthController {
     }
 
     @PostMapping("/send2FATokenIfEnabled")
-    public ResponseEntity<MessageResponseDTO> send2FATokenIfEnabled(@RequestBody Send2FATokenIfEnabledRequestDTO send2FATokenIfEnabledRequestDTO) {
+    public ResponseEntity<MFATokenSendResponse> send2FATokenIfEnabled(@RequestBody Send2FATokenIfEnabledRequestDTO send2FATokenIfEnabledRequestDTO) {
         User user = userService.getUserByUsername(send2FATokenIfEnabledRequestDTO.username());
 
-        if(!userService.verifyUserPassword(user.getUuid(), send2FATokenIfEnabledRequestDTO.password())) {
+        if (!userService.verifyUserPassword(user.getUuid(), send2FATokenIfEnabledRequestDTO.password())) {
             throw new BadCredentialsException("Invalid username or password");
         }
 
-        if (user.getMfaType() == MFATypeEnum.OTP_EMAIL) {
-            mfaService.sendEmailOTP(user);
+        switch (user.getMfaType()) {
+            case NONE -> {
+                return ResponseEntity.ok(new MFATokenSendResponse(false));
+            }
+            case OTP_EMAIL -> mfaService.sendEmailOTP(user);
         }
 
-        return ResponseEntity.ok(new MessageResponseDTO("2FA token send"));
+        return ResponseEntity.ok(new MFATokenSendResponse(true));
     }
 }
