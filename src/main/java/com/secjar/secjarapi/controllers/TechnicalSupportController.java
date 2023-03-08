@@ -37,6 +37,7 @@ public class TechnicalSupportController {
                 UUID.randomUUID().toString(),
                 supportRequestDTO.name(),
                 supportRequestDTO.surname(),
+                supportRequestDTO.email(),
                 supportRequestDTO.message());
 
         supportSubmissionService.saveSupportSubmission(supportSubmission);

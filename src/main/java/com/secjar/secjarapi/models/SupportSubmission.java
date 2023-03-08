@@ -22,6 +22,7 @@ public class SupportSubmission {
 
     private String name;
     private String surname;
+    private String email;
 
     @Column(columnDefinition = "TEXT")
     private String message;
@@ -33,10 +34,11 @@ public class SupportSubmission {
     @Setter
     private SupportSubmissionStatesEnum state;
 
-    public SupportSubmission(String uuid, String name, String surname, String message) {
+    public SupportSubmission(String uuid, String name, String surname, String email, String message) {
         this.uuid = uuid;
         this.name = name;
         this.surname = surname;
+        this.email = email;
         this.message = message;
         this.state = SupportSubmissionStatesEnum.PENDING;
     }
