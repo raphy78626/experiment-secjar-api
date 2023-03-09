@@ -1,9 +1,6 @@
 package com.secjar.secjarapi.controllers;
 
-import com.secjar.secjarapi.exceptions.BadNewPasswordException;
-import com.secjar.secjarapi.exceptions.EmailNotVerifiedException;
-import com.secjar.secjarapi.exceptions.InternalException;
-import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
+import com.secjar.secjarapi.exceptions.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -46,6 +43,12 @@ public class ErrorHandlingController {
     @ExceptionHandler({BadNewPasswordException.class})
     protected ResponseEntity<Object> handleBadNewPasswordException(Exception ex, WebRequest request) {
         Map<String, Object> errorMessage = createExceptionResponseBody("Bad password. Password need to have between 8 and 30 letters, at least one uppercase letter, one lowercase letter, one digit and one special character.", 400);
+        return ResponseEntity.status(400).body(errorMessage);
+    }
+
+    @ExceptionHandler({BadEmailException.class})
+    protected ResponseEntity<Object> handleBadEmailException(Exception ex, WebRequest request) {
+        Map<String, Object> errorMessage = createExceptionResponseBody(ex.getMessage(), 400);
         return ResponseEntity.status(400).body(errorMessage);
     }
 

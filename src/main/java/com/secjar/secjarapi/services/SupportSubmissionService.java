@@ -1,12 +1,15 @@
 package com.secjar.secjarapi.services;
 
+import com.secjar.secjarapi.dtos.requests.SupportRequestDTO;
 import com.secjar.secjarapi.dtos.requests.SupportSubmissionCreateRequestDTO;
 import com.secjar.secjarapi.dtos.requests.SupportSubmissionPatchRequestDTO;
 import com.secjar.secjarapi.enums.SupportSubmissionStatesEnum;
+import com.secjar.secjarapi.exceptions.BadEmailException;
 import com.secjar.secjarapi.exceptions.ResourceNotFoundException;
 import com.secjar.secjarapi.models.SupportSubmission;
 import com.secjar.secjarapi.models.SupportSubmissionNote;
 import com.secjar.secjarapi.repositories.SupportSubmissionRepository;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -62,5 +65,24 @@ public class SupportSubmissionService {
         supportSubmissionNoteService.saveSupportSubmissionNote(supportSubmissionNote);
 
         return supportSubmissionNote.getUuid();
+    }
+
+    public String createNewSubmission(SupportRequestDTO supportRequestDTO) {
+        boolean isValidEmail = EmailValidator.getInstance().isValid(supportRequestDTO.email());
+
+        if(!isValidEmail) {
+            throw new BadEmailException(String.format("%s is not a valid email", supportRequestDTO.email()));
+        }
+
+        SupportSubmission supportSubmission = new SupportSubmission(
+                UUID.randomUUID().toString(),
+                supportRequestDTO.name(),
+                supportRequestDTO.surname(),
+                supportRequestDTO.email(),
+                supportRequestDTO.message());
+
+        saveSupportSubmission(supportSubmission);
+
+        return supportSubmission.getUuid();
     }
 }

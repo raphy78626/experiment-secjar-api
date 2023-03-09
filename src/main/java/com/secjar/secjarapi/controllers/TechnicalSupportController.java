@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/support")
@@ -33,16 +32,9 @@ public class TechnicalSupportController {
     @PostMapping("/submissions")
     public ResponseEntity<MessageResponseDTO> createNewTechnicalSupportSubmission(@RequestBody SupportRequestDTO supportRequestDTO) {
 
-        SupportSubmission supportSubmission = new SupportSubmission(
-                UUID.randomUUID().toString(),
-                supportRequestDTO.name(),
-                supportRequestDTO.surname(),
-                supportRequestDTO.email(),
-                supportRequestDTO.message());
+        String submissionUuid = supportSubmissionService.createNewSubmission(supportRequestDTO);
 
-        supportSubmissionService.saveSupportSubmission(supportSubmission);
-
-        return ResponseEntity.created(URI.create(String.format("/submissions/%s", supportSubmission.getUuid()))).body(new MessageResponseDTO("Technical support submission created"));
+        return ResponseEntity.created(URI.create(String.format("/submissions/%s", submissionUuid))).body(new MessageResponseDTO("Technical support submission created"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
