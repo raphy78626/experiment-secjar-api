@@ -1,4 +1,6 @@
 package com.secjar.secjarapi.dtos.requests;
 
-public record PasswordResetRequestDTO(String userEmail) {
+import lombok.NonNull;
+
+public record PasswordResetRequestDTO(@NonNull String userEmail) {
 }

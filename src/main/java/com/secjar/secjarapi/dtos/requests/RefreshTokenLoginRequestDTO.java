@@ -1,4 +1,6 @@
 package com.secjar.secjarapi.dtos.requests;
 
-public record RefreshTokenLoginRequestDTO(String refreshToken) {
+import lombok.NonNull;
+
+public record RefreshTokenLoginRequestDTO(@NonNull String refreshToken) {
 }

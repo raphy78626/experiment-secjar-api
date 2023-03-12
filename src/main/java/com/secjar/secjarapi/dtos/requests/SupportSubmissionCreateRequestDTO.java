@@ -1,4 +1,6 @@
 package com.secjar.secjarapi.dtos.requests;
 
-public record SupportSubmissionCreateRequestDTO(String content) {
+import lombok.NonNull;
+
+public record SupportSubmissionCreateRequestDTO(@NonNull String content) {
 }

@@ -1,4 +1,6 @@
 package com.secjar.secjarapi.dtos.requests;
 
-public record RegistrationRequestDTO(String password) {
+import lombok.NonNull;
+
+public record RegistrationRequestDTO(@NonNull String password) {
 }
