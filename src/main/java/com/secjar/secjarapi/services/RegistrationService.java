@@ -40,11 +40,11 @@ public class RegistrationService {
         this.passwordValidator = passwordValidator;
     }
 
-    public void register(String accountCreationToken, RegistrationRequestDTO registrationRequestDTO) {
+    public void register(RegistrationRequestDTO registrationRequestDTO) {
 
-        accountCreationCredentialsService.setUsedAt(accountCreationToken);
+        accountCreationCredentialsService.setUsedAt(registrationRequestDTO.accountCreationToken());
 
-        AccountCreationCredentials accountCreationCredentials = accountCreationCredentialsService.getTokenByToken(accountCreationToken);
+        AccountCreationCredentials accountCreationCredentials = accountCreationCredentialsService.getTokenByToken(registrationRequestDTO.accountCreationToken());
 
         UserRole userRole = roleService.getRole(UserRolesEnum.ROLE_USER);
 

@@ -32,8 +32,8 @@ public class UserInvitationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<MessageResponseDTO> register(@RequestParam String accountCreationToken, @RequestBody RegistrationRequestDTO request) {
-        registrationService.register(accountCreationToken, request);
+    public ResponseEntity<MessageResponseDTO> register(@RequestBody RegistrationRequestDTO registrationRequestDTO) {
+        registrationService.register(registrationRequestDTO);
 
         return ResponseEntity.ok(new MessageResponseDTO("Account created"));
     }
