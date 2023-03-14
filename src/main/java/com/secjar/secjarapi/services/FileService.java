@@ -30,7 +30,7 @@ public class FileService {
         File file = new File(filePath.toUri());
 
         try {
-            file.getParentFile().mkdir();
+            file.getParentFile().mkdirs();
             file.createNewFile();
         } catch (IOException e) {
             throw new InternalException("Error while creating the file", e);
@@ -85,7 +85,7 @@ public class FileService {
         file = new File(filePath.toUri());
 
         try {
-            file.getParentFile().mkdir();
+            file.getParentFile().mkdirs();
             file.createNewFile();
         } catch (IOException e) {
             throw new InternalException("Error while creating the file", e);
