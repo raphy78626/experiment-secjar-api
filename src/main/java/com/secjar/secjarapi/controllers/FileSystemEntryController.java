@@ -6,6 +6,7 @@ import com.secjar.secjarapi.dtos.requests.FileSystemEntriesShareRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileSystemEntryPatchRequestDTO;
 import com.secjar.secjarapi.dtos.requests.FileUploadRequestDTO;
 import com.secjar.secjarapi.dtos.responses.FileSystemEntriesStructureResponseDTO;
+import com.secjar.secjarapi.dtos.responses.FileSystemEntryInfoDTO;
 import com.secjar.secjarapi.dtos.responses.MessageResponseDTO;
 import com.secjar.secjarapi.dtos.responses.SharedFileSystemEntriesStructureResponseDTO;
 import com.secjar.secjarapi.enums.ShareActionsEnum;
@@ -57,6 +58,19 @@ public class FileSystemEntryController {
         List<FileSystemEntryInfo> fileSystemEntryInfoList = user.getFileSystemEntriesStructure();
 
         return ResponseEntity.ok(new FileSystemEntriesStructureResponseDTO(fileSystemEntryInfoList));
+    }
+
+    @GetMapping("/info/{uuid}")
+    public ResponseEntity<?> getFileSystemEntryInfo(@PathVariable("uuid") String fileSystemEntryUuid, @AuthenticationPrincipal Jwt principal) {
+        User user = getUserFromPrincipal(principal);
+
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+
+        if (!fileSystemEntryInfo.getUser().equals(user)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You don't have permission for that file"));
+        }
+
+        return ResponseEntity.ok(new FileSystemEntryInfoDTO(fileSystemEntryInfo));
     }
 
     @GetMapping("/info/shared")
