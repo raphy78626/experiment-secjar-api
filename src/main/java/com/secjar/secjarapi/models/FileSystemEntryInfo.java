@@ -37,6 +37,8 @@ public class FileSystemEntryInfo {
     @Setter
     private boolean isSharedByLink;
 
+    private LocalDateTime uploadDate;
+
     @Setter
     @JsonIgnore
     @ManyToOne
@@ -68,6 +70,7 @@ public class FileSystemEntryInfo {
         this.size = size;
         this.user = user;
         this.authorizedUsers.add(user);
+        uploadDate = LocalDateTime.now();
     }
 
     public FileSystemEntryInfo(String uuid, String name, String contentType, long size, FileSystemEntryInfo parent, User user) {
@@ -78,5 +81,6 @@ public class FileSystemEntryInfo {
         this.parent = parent;
         this.user = user;
         this.authorizedUsers.add(user);
+        uploadDate = LocalDateTime.now();
     }
 }
