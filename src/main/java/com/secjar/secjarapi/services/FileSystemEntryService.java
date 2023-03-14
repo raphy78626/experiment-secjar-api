@@ -108,8 +108,8 @@ public class FileSystemEntryService {
     public void patchFileSystemEntry(String fileSystemEntryUuid, FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO) {
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
-        if (fileSystemEntryPatchRequestDTO.isFavourite() != null) {
-            fileSystemEntryInfo.setFavourite(fileSystemEntryPatchRequestDTO.isFavourite());
+        if (fileSystemEntryPatchRequestDTO.isFavorite() != null) {
+            fileSystemEntryInfo.setFavorite(fileSystemEntryPatchRequestDTO.isFavorite());
         }
 
         if (fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {

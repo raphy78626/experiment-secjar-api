@@ -30,7 +30,7 @@ public class FileSystemEntryInfo {
     private long size;
 
     @Setter
-    private boolean isFavourite;
+    private boolean isFavorite;
 
     @Setter
     private Timestamp deleteDate;
