@@ -8,6 +8,8 @@ import java.util.List;
 public record UserInfoResponseDTO(
         String uuid,
         String username,
+        String name,
+        String surname,
         String email,
         boolean isVerified,
         MFATypeEnum mfaType,

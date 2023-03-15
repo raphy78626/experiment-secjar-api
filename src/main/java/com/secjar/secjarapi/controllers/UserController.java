@@ -44,6 +44,8 @@ public class UserController {
                 new UserInfoResponseDTO(
                         user.getUuid(),
                         user.getUsername(),
+                        user.getName(),
+                        user.getSurname(),
                         user.getEmail(),
                         user.isVerified(),
                         user.getMfaType(),
@@ -70,6 +72,8 @@ public class UserController {
         return ResponseEntity.ok().body(new UserInfoResponseDTO(
                 userInfo.getUuid(),
                 userInfo.getUsername(),
+                userInfo.getName(),
+                userInfo.getSurname(),
                 userInfo.getEmail(),
                 userInfo.isVerified(),
                 userInfo.getMfaType(),
