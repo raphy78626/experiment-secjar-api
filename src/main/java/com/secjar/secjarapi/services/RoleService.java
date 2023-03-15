@@ -18,4 +18,8 @@ public class RoleService {
     public UserRole getRole(UserRolesEnum role) {
         return roleRepository.findByRole(role).orElseThrow(() -> new ResourceNotFoundException(String.format("Role %s does not exist", role)));
     }
+
+    public void saveRole(UserRole userRole) {
+        roleRepository.save(userRole);
+    }
 }
