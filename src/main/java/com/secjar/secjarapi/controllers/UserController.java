@@ -42,6 +42,7 @@ public class UserController {
 
         List<UserInfoResponseDTO> responseUsers = users.stream().map(user ->
                 new UserInfoResponseDTO(
+                        user.getUuid(),
                         user.getUsername(),
                         user.getEmail(),
                         user.isVerified(),
@@ -64,16 +65,19 @@ public class UserController {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You can't access this user info"));
         }
 
+        User userInfo = userService.getUserByUuid(userUuid);
+
         return ResponseEntity.ok().body(new UserInfoResponseDTO(
-                user.getUsername(),
-                user.getEmail(),
-                user.isVerified(),
-                user.getMfaType(),
-                user.getFileDeletionDelay(),
-                user.getCurrentDiskSpace(),
-                user.getAllowedDiskSpace(),
-                user.getFileSystemEntries().size(),
-                user.getRoles().stream().map(UserRole::getRole).toList()
+                userInfo.getUuid(),
+                userInfo.getUsername(),
+                userInfo.getEmail(),
+                userInfo.isVerified(),
+                userInfo.getMfaType(),
+                userInfo.getFileDeletionDelay(),
+                userInfo.getCurrentDiskSpace(),
+                userInfo.getAllowedDiskSpace(),
+                userInfo.getFileSystemEntries().size(),
+                userInfo.getRoles().stream().map(UserRole::getRole).toList()
         ));
     }
 

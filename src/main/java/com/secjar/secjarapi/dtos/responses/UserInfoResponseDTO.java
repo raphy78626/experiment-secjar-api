@@ -6,6 +6,7 @@ import com.secjar.secjarapi.enums.UserRolesEnum;
 import java.util.List;
 
 public record UserInfoResponseDTO(
+        String uuid,
         String username,
         String email,
         boolean isVerified,
