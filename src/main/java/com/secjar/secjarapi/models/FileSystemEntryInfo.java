@@ -1,6 +1,8 @@
 package com.secjar.secjarapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +19,9 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "file_system_entries_info")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "uuid")
 public class FileSystemEntryInfo {
 
     @Id
@@ -41,7 +46,6 @@ public class FileSystemEntryInfo {
     private LocalDateTime uploadDate;
 
     @Setter
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private FileSystemEntryInfo parent;
