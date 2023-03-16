@@ -233,7 +233,7 @@ public class FileSystemEntryController {
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<MessageResponseDTO> addFileSystemEntryToFavorites(@PathVariable("uuid") String fileSystemEntryUuid, @RequestBody FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
+    public ResponseEntity<MessageResponseDTO> patchFileSystemEntry(@PathVariable("uuid") String fileSystemEntryUuid, @RequestBody FileSystemEntryPatchRequestDTO fileSystemEntryPatchRequestDTO, @AuthenticationPrincipal Jwt principal) {
         User user = getUserFromPrincipal(principal);
 
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
