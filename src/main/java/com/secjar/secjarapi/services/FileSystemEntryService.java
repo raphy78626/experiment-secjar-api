@@ -42,6 +42,12 @@ public class FileSystemEntryService {
 
         fileInfo.setName(fileName);
 
+        if (fileInfo.getSize() + fileInfo.getUser().getCurrentDiskSpace() > fileInfo.getUser().getAllowedDiskSpace()) {
+            throw new IllegalStateException(String.format("Can't save file with uuid %s. Allowed disc size exceeded", fileInfo.getUuid()));
+        }
+
+        userService.increaseTakenDiskSpace(fileInfo.getUser().getUuid(), fileInfo.getSize());
+
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileInfo);
 
         CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
