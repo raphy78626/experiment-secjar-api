@@ -59,7 +59,6 @@ public class FileSystemEntryInfo {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "shared_files",

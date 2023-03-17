@@ -1,5 +1,6 @@
 package com.secjar.secjarapi.models;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.secjar.secjarapi.enums.MFATypeEnum;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import jakarta.persistence.*;
@@ -20,6 +21,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @JsonValue
     private String uuid;
 
     private String username;
