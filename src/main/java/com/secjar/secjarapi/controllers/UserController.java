@@ -94,6 +94,10 @@ public class UserController {
             return ResponseEntity.status(403).body(new MessageResponseDTO("You can't change data of this user"));
         }
 
+        if(userPatchRequestDTO.allowedDiskSpace() != null && !userService.isUserAdmin(userUuidFromPrincipal)) {
+            return ResponseEntity.status(403).body(new MessageResponseDTO("You can't change your own allowed disk space"));
+        }
+
         userService.pathUser(userUuid, userPatchRequestDTO);
 
         return ResponseEntity.status(204).build();
