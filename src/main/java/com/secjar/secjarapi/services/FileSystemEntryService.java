@@ -115,7 +115,7 @@ public class FileSystemEntryService {
         FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
 
         if (fileSystemEntryPatchRequestDTO.isFavorite() != null) {
-            fileSystemEntryInfo.setFavorite(fileSystemEntryPatchRequestDTO.isFavorite());
+            toggleFavorite(fileSystemEntryUuid, fileSystemEntryPatchRequestDTO.isFavorite());
         }
 
         if (fileSystemEntryPatchRequestDTO.parentDirectoryUuid() != null) {
@@ -141,6 +141,20 @@ public class FileSystemEntryService {
         }
 
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+    }
+
+    public void toggleFavorite(String fileSystemEntryUuid, boolean isFavorite) {
+        FileSystemEntryInfo fileSystemEntryInfo = fileSystemEntryInfoService.getFileSystemEntryInfoByUuid(fileSystemEntryUuid);
+
+        fileSystemEntryInfo.setFavorite(isFavorite);
+
+        fileSystemEntryInfoService.saveFileSystemEntryInfo(fileSystemEntryInfo);
+
+        if (!fileSystemEntryInfo.getChildren().isEmpty()) {
+            for (FileSystemEntryInfo childFileSystemEntry : fileSystemEntryInfo.getChildren()) {
+                toggleFavorite(childFileSystemEntry.getUuid(), isFavorite);
+            }
+        }
     }
 
     public ByteArrayOutputStream getZippedDirectory(String directoryUuid, CryptoServerCXI.Key keyForDecryption) {
