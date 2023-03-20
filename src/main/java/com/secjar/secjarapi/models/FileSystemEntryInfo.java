@@ -1,7 +1,6 @@
 package com.secjar.secjarapi.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -54,7 +53,6 @@ public class FileSystemEntryInfo {
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
     private List<FileSystemEntryInfo> children = new ArrayList<>();
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
