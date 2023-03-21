@@ -75,6 +75,8 @@ public class FileSystemEntryService {
             for (User authorizeUser : targetFileSystemEntry.getAuthorizedUsers()) {
                 updateShareFileSystemEntryWithUser(fileSystemEntry, authorizeUser.getUuid(), ShareActionsEnum.SHARE_START);
             }
+
+            toggleFavorite(fileSystemEntry.getUuid(), targetFileSystemEntry.isFavorite());
         } else {
             fileSystemEntry.setParent(null);
             fileSystemEntry.getAuthorizedUsers().clear();
