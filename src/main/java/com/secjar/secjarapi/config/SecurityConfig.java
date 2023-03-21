@@ -9,6 +9,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.secjar.secjarapi.services.JpaUserDetailsService;
 import com.secjar.secjarapi.services.MFAService;
 import com.secjar.secjarapi.services.UserService;
+import com.secjar.secjarapi.utils.KeyGeneratorUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -36,6 +37,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 @Configuration
@@ -44,11 +48,13 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JpaUserDetailsService myUserDetailsService;
-    private final RsaKeyProperties rsaKeyProperties;
+    private final KeyGeneratorUtil keyGeneratorUtil;
 
-    public SecurityConfig(JpaUserDetailsService userDetailsService, RsaKeyProperties rsaKeyProperties) {
+    private RSAPublicKey jwtRSAPublicKey;
+
+    public SecurityConfig(JpaUserDetailsService userDetailsService, KeyGeneratorUtil keyGeneratorUtil) {
         this.myUserDetailsService = userDetailsService;
-        this.rsaKeyProperties = rsaKeyProperties;
+        this.keyGeneratorUtil = keyGeneratorUtil;
     }
 
     @Bean
@@ -95,15 +101,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(rsaKeyProperties.publicKey()).build();
+    public JWKSource<SecurityContext> jwkSource() {
+        KeyPair keyPair = keyGeneratorUtil.generateRsaKey();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        jwtRSAPublicKey = (RSAPublicKey) keyPair.getPublic();
+
+        JWK jwk = new RSAKey.Builder(jwtRSAPublicKey).privateKey(privateKey).build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+
+        return jwks;
     }
 
     @Bean
-    public JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(rsaKeyProperties.publicKey()).privateKey(rsaKeyProperties.privateKey()).build();
-        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-        return new NimbusJwtEncoder(jwks);
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(jwtRSAPublicKey).build();
     }
 
     @Bean

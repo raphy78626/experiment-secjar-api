@@ -1,13 +1,10 @@
 package com.secjar.secjarapi;
 
-import com.secjar.secjarapi.config.RsaKeyProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableConfigurationProperties(RsaKeyProperties.class)
 @PropertySource("classpath:emailSender.properties")
 @PropertySource("classpath:files.properties")
 @PropertySource("classpath:hsm.properties")
