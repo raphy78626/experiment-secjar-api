@@ -25,7 +25,7 @@ public class FileService {
         this.hsmService = hsmService;
     }
 
-    public void saveAttachment(MultipartFile multipartFile, FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForEncryption) {
+    public void saveFile(MultipartFile multipartFile, FileSystemEntryInfo fileSystemEntryInfo, CryptoServerCXI.Key keyForEncryption) {
         Path filePath = Path.of(fileSavePath, fileSystemEntryInfo.getUuid());
         File file = new File(filePath.toUri());
 

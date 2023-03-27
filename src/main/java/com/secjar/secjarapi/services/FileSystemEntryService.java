@@ -51,7 +51,7 @@ public class FileSystemEntryService {
         fileSystemEntryInfoService.saveFileSystemEntryInfo(fileInfo);
 
         CryptoServerCXI.Key userCryptoKey = hsmService.getKeyFromStore(user.getCryptographicKeyIndex());
-        fileService.saveAttachment(file, fileInfo, userCryptoKey);
+        fileService.saveFile(file, fileInfo, userCryptoKey);
     }
 
     public void saveDirectory(FileSystemEntryInfo directoryInfo) {
