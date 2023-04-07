@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 public class RegistrationService {
 
-    @Value("${accountCreation.emailConfirmationSiteAddress}")
+    @Value("${frontendUrls.emailConfirmationPageUrl}")
     private String emailConfirmationSite;
 
     private final UserService userService;

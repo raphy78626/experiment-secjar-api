@@ -3,6 +3,7 @@ package com.secjar.secjarapi.services;
 import com.secjar.secjarapi.dtos.requests.PasswordResetConfirmRequestDTO;
 import com.secjar.secjarapi.models.PasswordResetToken;
 import com.secjar.secjarapi.models.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,9 @@ import java.util.UUID;
 
 @Service
 public class PasswordResetService {
+
+    @Value("${frontendUrls.passwordResetConfirmationPageUrl}")
+    private String passwordResetConfirmationPageUrl;
 
     private final UserService userService;
     private final PasswordResetTokenService passwordResetTokenService;
@@ -34,7 +38,7 @@ public class PasswordResetService {
 
         passwordResetTokenService.savePasswordResetToken(passwordResetToken);
 
-        emailSenderService.sendSimpleMail(user.getEmail(), "Password reset link: ", "http://localhost:5173/passwordReset?token=" + passwordResetToken.getToken());
+        emailSenderService.sendSimpleMail(user.getEmail(), "Password reset link: ", passwordResetConfirmationPageUrl + "?token=" + passwordResetToken.getToken());
 
         return user.getUuid();
     }

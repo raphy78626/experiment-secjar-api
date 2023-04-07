@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class UserInvitationService {
 
-    @Value("${accountCreation.creationSiteAddress}")
+    @Value("${frontendUrls.accountActivationPageUrl}")
     private String accountCreationSite;
 
     private final EmailSenderService emailSenderService;
