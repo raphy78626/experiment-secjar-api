@@ -50,7 +50,7 @@ public class PasswordResetService {
             throw new IllegalStateException("Password reset token expired");
         }
 
-        userService.changeUserPasswordByEmail(passwordResetConfirmRequestDTO.userEmail(), passwordResetConfirmRequestDTO.newPassword());
+        userService.changeUserPasswordByEmail(passwordResetToken.getUser().getEmail(), passwordResetConfirmRequestDTO.newPassword());
 
         passwordResetTokenService.setUsedAt(passwordResetConfirmRequestDTO.token());
     }
