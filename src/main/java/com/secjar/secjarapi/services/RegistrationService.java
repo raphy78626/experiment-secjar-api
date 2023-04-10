@@ -22,6 +22,9 @@ public class RegistrationService {
     @Value("${frontendUrls.emailConfirmationPageUrl}")
     private String emailConfirmationSite;
 
+    @Value("${emails.emailConfirmation.subject}")
+    private String emailConfirmationEmailSubject;
+
     private final UserService userService;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSenderService emailSenderService;
@@ -73,7 +76,7 @@ public class RegistrationService {
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        emailSenderService.sendSimpleMail(user.getEmail(), "Confirm your account", emailConfirmationSite + "?token=" + confirmationToken.getToken());
+        emailSenderService.sendSimpleMail(user.getEmail(), emailConfirmationEmailSubject, emailConfirmationSite + "?token=" + confirmationToken.getToken());
     }
 
     public void confirmRegistrationToken(String token) {

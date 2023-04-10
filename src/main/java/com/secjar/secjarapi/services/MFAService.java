@@ -19,6 +19,9 @@ public class MFAService {
     @Value("${mfa.issuer}")
     private String mfaIssuer;
 
+    @Value("${emails.oneTimeLoginPassword.subject}")
+    private String otpEmailSubject;
+
     private final UserService userService;
     private final EmailSenderService emailSenderService;
     private final EmailOTPTokenService emailOTPTokenService;
@@ -56,7 +59,7 @@ public class MFAService {
 
         String emailOTPToken = emailOTPTokenService.generateEmailOTPToken(user);
 
-        emailSenderService.sendSimpleMail(user.getEmail(), "Login one time password", "Password: " + emailOTPToken);
+        emailSenderService.sendSimpleMail(user.getEmail(), otpEmailSubject, "Password: " + emailOTPToken);
     }
 
     public boolean validateEmailOTP(String verificationCode, User user) {

@@ -15,6 +15,9 @@ public class PasswordResetService {
     @Value("${frontendUrls.passwordResetConfirmationPageUrl}")
     private String passwordResetConfirmationPageUrl;
 
+    @Value("${emails.passwordReset.subject}")
+    private String passwordResetEmailSubject;
+
     private final UserService userService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final EmailSenderService emailSenderService;
@@ -38,7 +41,7 @@ public class PasswordResetService {
 
         passwordResetTokenService.savePasswordResetToken(passwordResetToken);
 
-        emailSenderService.sendSimpleMail(user.getEmail(), "Password reset link: ", passwordResetConfirmationPageUrl + "?token=" + passwordResetToken.getToken());
+        emailSenderService.sendSimpleMail(user.getEmail(), passwordResetEmailSubject, passwordResetConfirmationPageUrl + "?token=" + passwordResetToken.getToken());
 
         return user.getUuid();
     }

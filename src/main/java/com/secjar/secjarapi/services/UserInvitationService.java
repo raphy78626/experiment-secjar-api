@@ -15,6 +15,9 @@ public class UserInvitationService {
     @Value("${frontendUrls.accountActivationPageUrl}")
     private String accountCreationSite;
 
+    @Value("${emails.accountCreation.subject}")
+    private String accountCreationEmailSubject;
+
     private final EmailSenderService emailSenderService;
     private final UserService userService;
     private final AccountCreationCredentialsService accountCreationCredentialsService;
@@ -52,6 +55,6 @@ public class UserInvitationService {
 
         accountCreationCredentialsService.saveAccountCreationToken(accountCreationCredentials);
 
-        emailSenderService.sendSimpleMail(inviteUserRequestDTO.email(), "Create your account", accountCreationSite + "?token=" + accountCreationCredentials.getToken());
+        emailSenderService.sendSimpleMail(inviteUserRequestDTO.email(), accountCreationEmailSubject, accountCreationSite + "?token=" + accountCreationCredentials.getToken());
     }
 }
