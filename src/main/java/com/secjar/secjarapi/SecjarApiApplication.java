@@ -6,6 +6,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @PropertySource("classpath:emailSender.properties")
+@PropertySource("classpath:emails.properties")
 @PropertySource("classpath:files.properties")
 @PropertySource("classpath:hsm.properties")
 @PropertySource("classpath:frontendUrls.properties")
