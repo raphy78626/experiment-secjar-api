@@ -146,6 +146,14 @@ public class UserService {
         saveUser(user);
     }
 
+    public void decreaseTakenDiskSpace(String userUuid, long deletedFileSize) {
+        User user = getUserByUuid(userUuid);
+
+        user.setCurrentDiskSpace(user.getCurrentDiskSpace() - deletedFileSize);
+
+        saveUser(user);
+    }
+
     public boolean isUserAdmin(String userUuid) {
         User user = getUserByUuid(userUuid);
         UserRole adminRole = roleService.getRole(UserRolesEnum.ROLE_ADMIN);

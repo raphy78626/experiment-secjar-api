@@ -91,6 +91,9 @@ public class FileSystemEntryService {
         if (entryToDelete.getChildren().isEmpty() && !entryToDelete.getContentType().equals("directory")) {
             fileSystemEntryInfoService.deleteFileSystemEntryInfoByUuid(fileSystemEntryUuid);
             fileService.deleteFile(fileSystemEntryUuid);
+
+            userService.decreaseTakenDiskSpace(entryToDelete.getUser().getUuid(), entryToDelete.getSize());
+
             return;
         }
 
