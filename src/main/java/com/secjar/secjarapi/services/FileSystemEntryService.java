@@ -68,6 +68,10 @@ public class FileSystemEntryService {
             throw new IllegalArgumentException("Target is not a directory");
         }
 
+        if(fileSystemEntry.getUuid() == targetFileSystemEntry.getUuid()) {
+            throw new IllegalArgumentException("You can't move directory into itself");
+        }
+
         if (targetFileSystemEntry != null) {
             fileSystemEntry.setParent(targetFileSystemEntry);
 
