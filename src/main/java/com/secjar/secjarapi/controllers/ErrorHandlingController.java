@@ -50,7 +50,7 @@ public class ErrorHandlingController {
         return ResponseEntity.status(400).body(errorMessage);
     }
 
-    @ExceptionHandler({BadEmailException.class})
+    @ExceptionHandler({IllegalArgumentException.class, BadEmailException.class})
     protected ResponseEntity<Object> handleBadEmailException(Exception ex, WebRequest request) {
         Map<String, Object> errorMessage = createExceptionResponseBody(ex.getMessage(), 400);
         ex.printStackTrace();
